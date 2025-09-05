@@ -20,7 +20,9 @@
 
 🔧 **Modern APIs**: Clean public API, object-oriented charts, quick functions, 100% backward compatible
 
-⚡ **Zero Dependencies**: No required dependencies (optional packages for multimedia)
+🤖 **AI Integration**: [MCP server](docs/mcp-server.md) for direct AI client access (Claude, etc.)
+
+⚡ **Zero Dependencies**: No required dependencies (optional packages for multimedia and AI integration)
 
 ![subplots](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/subplots.png)
 
@@ -35,8 +37,10 @@ uv add plotext_plus
 # Traditional installation
 pip install plotext_plus
 
-# With optional dependencies for multimedia
-pip install plotext_plus[image,video]
+# With optional dependencies
+pip install plotext_plus[image,video]      # Multimedia support
+pip install plotext_plus[mcp]              # AI integration (MCP server)
+pip install plotext_plus[image,video,mcp]  # All features
 ```
 
 ### Basic Usage
@@ -95,6 +99,36 @@ import plotext_plus as plt
 plt.plotting.bar(categories, values)      # Main plotting functions
 plt.themes.apply_theme('dark_mode')       # Theme management  
 plt.utilities.log_success("Plot ready!")  # Helper utilities
+```
+
+### AI Integration 🤖
+
+```bash
+# Install with MCP (Model Context Protocol) support  
+pip install plotext_plus[mcp]
+
+# Start the MCP server for AI clients like Claude
+plotext-mcp
+```
+
+**Use with Claude Desktop**: Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "plotext-plus": {
+      "command": "plotext-mcp",
+      "args": [],
+      "env": {}
+    }
+  }
+}
+```
+
+Now AI clients can create plots directly:
+
+```text
+"Create a scatter plot showing x=[1,2,3,4,5] vs y=[1,4,9,16,25] with title 'Quadratic Function'"
 ```
 
 ## 🏗️ Architecture & API
@@ -196,6 +230,7 @@ python examples/theme_showcase_demo.py   # Theme comparison
 ### 🛠️ **Tools & Integration**  
 
 - **[🔧 Utilities](docs/utilities.md)** - Helper functions and command-line tools
+- **[🤖 MCP Server](docs/mcp-server.md)** - AI integration via Model Context Protocol
 - **[🌐 Environments](docs/environments.md)** - IDE and platform compatibility
 - **[🏗️ API Structure](docs/api.md)** - Clean public API organization
 - **[📝 Notes](docs/notes.md)** - Installation, tips, and troubleshooting

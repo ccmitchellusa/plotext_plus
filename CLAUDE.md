@@ -148,6 +148,59 @@ Theme management: `get_theme_info`, `apply_theme`, `apply_chuk_theme_to_chart`, 
 ### plotext_plus.utilities
 Helpers: `terminal_width`, `colorize`, `log_info`, `log_success`, `log_warning`, `log_error`, `delete_file`, `download`
 
+### plotext_plus.mcp_server (Optional)
+MCP Server functionality: Exposes all public API functions as Model Context Protocol tools for AI clients
+
+## MCP Server Feature
+
+### Overview
+The optional MCP (Model Context Protocol) server feature allows AI clients like Claude to use plotext_plus functionality directly through standardized tool interfaces.
+
+### Installation & Setup
+```bash
+# Install with MCP support
+uv add plotext_plus[mcp]
+
+# Start the MCP server
+plotext-mcp
+
+# Get server information
+plotext-mcp --info
+```
+
+### Available MCP Tools
+- **Plotting Tools**: `scatter_plot`, `line_plot`, `bar_chart`, `matrix_plot`
+- **Chart Tools**: `quick_scatter`, `quick_line`, `quick_bar`  
+- **Theme Tools**: `get_available_themes`, `apply_plot_theme`
+- **Utility Tools**: `get_terminal_width`, `colorize_text`, logging functions
+- **Management Tools**: `set_plot_size`, `enable_banner_mode`, `clear_plot`
+
+### MCP Integration Notes
+- **Python 3.11+ Required**: Due to chuk-mcp-server dependency requirements  
+- **Zero Configuration**: Uses chuk-mcp-server for automatic setup
+- **Tool Annotations**: All functions exposed with proper type hints and documentation
+- **Error Handling**: Graceful fallback when MCP dependencies unavailable
+- **Resource Access**: Provides `config://plotext` resource for configuration info
+
+### Testing MCP Functionality
+```bash
+# Test imports work correctly
+python -c "from plotext_plus.mcp_server import start_server; print('✓ MCP ready')"
+
+# Test CLI functionality  
+plotext-mcp --info
+
+# Test individual tools (requires async)
+python -c "
+import asyncio
+from plotext_plus.mcp_server import scatter_plot
+async def test(): 
+    result = await scatter_plot([1,2,3], [1,4,9], title='Test')
+    print(f'Plot generated: {len(result)} characters')
+asyncio.run(test())
+"
+```
+
 ## Dependencies
 
 ### Core (No Dependencies)
@@ -156,6 +209,7 @@ Helpers: `terminal_width`, `colorize`, `log_info`, `log_success`, `log_warning`,
 ### Optional Dependencies
 - **Image/Video**: `pillow`, `opencv-python`, `ffpyplayer`, `pafy`, `youtube-dl`
 - **Enhanced Terminal**: `chuk-term` (automatically included)
+- **MCP Server**: `chuk-mcp-server` (for Model Context Protocol support)
 
 ### Installation Commands
 ```bash
@@ -164,6 +218,12 @@ uv add plotext_plus
 
 # With multimedia support
 uv add plotext_plus[image,video]
+
+# With MCP server support
+uv add plotext_plus[mcp]
+
+# With all optional features
+uv add plotext_plus[image,video,mcp]
 
 # Development installation
 git clone <repo> && cd plotext_plus && uv install
