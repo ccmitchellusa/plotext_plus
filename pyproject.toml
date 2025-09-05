@@ -28,7 +28,7 @@ video = [
 ]
 completion = ["shtab"]
 mcp = [
-    "chuk-mcp-server>=0.1.7",
+    "chuk-mcp-server>=0.2.3",
 ]
 
 [project.scripts]
@@ -53,5 +53,3 @@ packages = ["src/plotext_plus"]
 [tool.hatch.build.targets.wheel.sources]
 "src" = ""
 
-[tool.uv.sources]
-chuk-mcp-server = { path = "../../chuk/chuk-mcp-server", editable = true }
