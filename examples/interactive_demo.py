@@ -450,6 +450,7 @@ def demo_pie_charts(use_full_height=False):
     plt.log_success("✓ Doughnut with remaining color demo complete")
     plt.log_info("📋 Remaining slice colored gray instead of blank spaces")
     
+
     time.sleep(2)
     plt.log_success("✓ Pie & Doughnut chart demonstrations complete")
     

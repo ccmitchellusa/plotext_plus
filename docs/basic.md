@@ -258,7 +258,7 @@ python3 -c "import plotext_plus as plt; labels = ['Python', 'JS', 'Go', 'Rust'];
 
 Single-value pie charts are perfect for progress indicators, completion rates, and other single-metric visualizations. They show a colored segment for the data value and handle the remainder specially.
 
-![pie single-value](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/multiple-single-value.png)
+![pie single-value](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/pie-single-value.png)
 
 ```python
 import plotext_plus as plt
