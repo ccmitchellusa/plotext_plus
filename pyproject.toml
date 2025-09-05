@@ -1,6 +1,6 @@
 [project]
 name = "plotext_plus"
-version = "1.0.7"
+version = "1.0.8"
 description = "Modern terminal plotting library with enhanced visual features, themes, and AI integration"
 authors = [
     {name = "Chris Mitchell", email = "chris@ccmitchellusa.com"}
