@@ -8,7 +8,7 @@
 
 ![logo](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/logo.png)
 
-**Plotext+ plots directly in your terminal** with stunning visuals, modern APIs, and professional styling.  Plotext+ is an redesigned version of the original [plotext](https://github.com/piccolomo/plotext) library by Savino Piccolomo. New features include an updated API with object oriented features, an MCP server to make the project easily usable with AI & LLM scenarios, new themes and integration with chuk-term to make sure it works in the awesome [mcp-cli](https://github.com/chrishayuk/mcp-cli) by Chris Hay.
+**Plotext+ plots directly in your terminal** with stunning visuals, modern APIs, and professional styling.  Plotext+ is a redesigned version of the original [plotext](https://github.com/piccolomo/plotext) library by Savino Piccolomo. New features include an updated API with object oriented features, an MCP server to make the project easily usable with AI & LLM scenarios, new themes and integration with chuk-term to make sure it works in the awesome [mcp-cli](https://github.com/chrishayuk/mcp-cli) by Chris Hay.
 
 ## ✨ Key Features
 

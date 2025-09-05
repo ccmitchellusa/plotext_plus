@@ -51,6 +51,15 @@ def get_optimal_grid_height():
     
     return max(available_height, 15)
 
+def get_full_terminal_height():
+    """Get the full terminal height for 'Run all demos' mode"""
+    from plotext_plus import _utility as ut
+    
+    terminal_width, terminal_height = ut.terminal_size()
+    
+    # Use terminal height minus 3 lines, with minimum of 5
+    return max(terminal_height - 3, 5)
+
 def welcome_screen():
     """Display welcome screen with banner"""
     plt.log_success("🎉 Welcome to Plotext Interactive Demo!")
@@ -71,7 +80,7 @@ def welcome_screen():
     
     print("="*60 + "\n")
 
-def demo_banner_styles():
+def demo_banner_styles(use_full_height=False):
     """Demonstrate different banner styles and themes"""
     plt.log_info("🎭 Demonstrating Banner Styles and Themes...")
     
@@ -80,7 +89,7 @@ def demo_banner_styles():
     pressure = [1013 + 50*math.sin(i/3) + random.randint(-10, 10) for i in x]
     
     chart1 = plt.Chart(use_banners=True, banner_title="🔬 Scientific Data Analysis")
-    chart1._config['height'] = get_optimal_chart_height()
+    chart1._config['height'] = get_full_terminal_height() if use_full_height else get_optimal_chart_height()
     chart1.scatter(x, pressure, color='blue', label='Pressure Readings')
     chart1.title("Atmospheric Pressure Monitoring")
     chart1.xlabel("Time (hours)")
@@ -96,7 +105,7 @@ def demo_banner_styles():
     growth = [(rev/120 - 1)*100 for rev in revenue]
     
     chart2 = plt.Chart(use_banners=True, banner_title="💼 Business Intelligence Dashboard")
-    chart2._config['height'] = get_optimal_chart_height()
+    chart2._config['height'] = get_full_terminal_height() if use_full_height else get_optimal_chart_height()
     chart2.bar(list(range(len(months))), revenue, color='green')
     chart2.line(list(range(len(months))), [r/2 for r in revenue], color='orange', label='Trend')
     chart2.title("Monthly Revenue & Growth Analysis")
@@ -110,7 +119,7 @@ def demo_banner_styles():
     scores = [850, 1200, 975, 1450, 1600]
     
     chart3 = plt.Chart(use_banners=True, banner_title="🎮 Gaming Statistics")
-    chart3._config['height'] = get_optimal_chart_height()
+    chart3._config['height'] = get_full_terminal_height() if use_full_height else get_optimal_chart_height()
     chart3.bar(list(range(len(levels))), scores, color='magenta')
     chart3.title("Player Performance by Level")
     chart3.show()
@@ -118,7 +127,7 @@ def demo_banner_styles():
     plt.log_success("✓ Gaming theme demonstrated")
     time.sleep(2)
 
-def demo_interactive_charts():
+def demo_interactive_charts(use_full_height=False):
     """Create interactive-style charts with real-time feel"""
     plt.log_info("📊 Creating Interactive-Style Charts...")
     
@@ -131,7 +140,7 @@ def demo_interactive_charts():
         values = [10 + 5*math.sin(t/4) + 2*math.cos(t/2) + random.uniform(-1, 1) for t in time_points]
         
         chart = plt.Chart(use_banners=True, banner_title=f"📈 Real-time Monitor (Update {i+1}/3)")
-        chart._config['height'] = get_optimal_chart_height()
+        chart._config['height'] = get_full_terminal_height() if use_full_height else get_optimal_chart_height()
         chart.line(time_points, values, color='cyan', label='Live Signal')
         chart.scatter([time_points[-1]], [values[-1]], color='red', label='Current')
         chart.title(f"Live Data Stream - Update {i+1}")
@@ -145,12 +154,12 @@ def demo_interactive_charts():
     
     plt.log_success("✓ Real-time simulation complete")
 
-def demo_four_panel_dashboard():
+def demo_four_panel_dashboard(use_full_height=False):
     """Create a 2x2 grid dashboard with four panels displayed side-by-side"""
     plt.log_info("📊 Creating Four-Panel Dashboard (2x2 grid layout)...")
     
-    # Import the core plotext functions for subplot functionality
-    import plotext as core_plt
+    # Use plotext_plus for subplot functionality
+    core_plt = plt
     
     # Clear any existing plot data to avoid conflicts
     core_plt.clear_figure()
@@ -160,7 +169,7 @@ def demo_four_panel_dashboard():
     # Calculate dynamic dimensions based on current terminal
     from plotext_plus import _utility as ut
     terminal_width, terminal_height = ut.terminal_size()
-    grid_height = get_optimal_grid_height()
+    grid_height = get_full_terminal_height() if use_full_height else get_optimal_grid_height()
     
     # Use banner-adjusted width for subplots when banners are enabled
     # ut.terminal_width() returns the appropriate width (reduced if banners are active)
@@ -205,7 +214,7 @@ def demo_four_panel_dashboard():
     
     plt.log_success("✓ Four-panel dashboard complete - 2x2 grid layout")
 
-def demo_multi_chart_dashboard():
+def demo_multi_chart_dashboard(use_full_height=False):
     """Create a multi-chart dashboard layout"""
     plt.log_info("🖥️  Creating Multi-Chart Dashboard...")
     
@@ -214,7 +223,7 @@ def demo_multi_chart_dashboard():
     memory_usage = [67, 69, 71, 74, 72, 75, 73, 70, 68, 66]
     
     chart1 = plt.Chart(use_banners=True, banner_title="⚡ System Performance Metrics")
-    chart1._config['height'] = get_optimal_chart_height()
+    chart1._config['height'] = get_full_terminal_height() if use_full_height else get_optimal_chart_height()
     chart1.line(list(range(10)), cpu_usage, color='red', label='CPU %')
     chart1.line(list(range(10)), memory_usage, color='blue', label='Memory %')
     chart1.title("System Resource Utilization")
@@ -227,7 +236,7 @@ def demo_multi_chart_dashboard():
     upload = [0.8, 1.1, 0.9, 1.8, 1.5, 0.7, 1.2, 1.0, 1.6, 1.9]
     
     chart2 = plt.Chart(use_banners=True, banner_title="🌐 Network Traffic Analysis")
-    chart2._config['height'] = get_optimal_chart_height()
+    chart2._config['height'] = get_full_terminal_height() if use_full_height else get_optimal_chart_height()
     chart2.line(list(range(10)), download, color='green', label='Download')
     chart2.line(list(range(10)), upload, color='orange', label='Upload')
     chart2.title("Network Bandwidth Usage (MB/s)")
@@ -240,14 +249,14 @@ def demo_multi_chart_dashboard():
     error_counts = [15, 8, 12, 5, 3]
     
     chart3 = plt.Chart(use_banners=True, banner_title="🚨 Error Analysis Dashboard")
-    chart3._config['height'] = get_optimal_chart_height()
+    chart3._config['height'] = get_full_terminal_height() if use_full_height else get_optimal_chart_height()
     chart3.bar(list(range(len(error_types))), error_counts, color='red')
     chart3.title("Error Distribution by Type")
     chart3.show()
     
     plt.log_success("✓ Multi-chart dashboard complete")
 
-def demo_mathematical_visualizations():
+def demo_mathematical_visualizations(use_full_height=False):
     """Show mathematical function plotting capabilities"""
     plt.log_info("📐 Mathematical Function Visualizations...")
     
@@ -261,7 +270,7 @@ def demo_mathematical_visualizations():
     tan_clean = [val for val in tan_vals if val is not None]
     
     chart1 = plt.Chart(use_banners=True, banner_title="📊 Trigonometric Functions")
-    chart1._config['height'] = get_optimal_chart_height()
+    chart1._config['height'] = get_full_terminal_height() if use_full_height else get_optimal_chart_height()
     chart1.line(x, sin_vals, color='red', label='sin(x)')
     chart1.line(x, cos_vals, color='blue', label='cos(x)')
     chart1.title("Mathematical Function Visualization")
@@ -275,7 +284,7 @@ def demo_mathematical_visualizations():
     log_vals = [math.log(val) for val in x_pos]
     
     chart2 = plt.Chart(use_banners=True, banner_title="📈 Exponential & Logarithmic")
-    chart2._config['height'] = get_optimal_chart_height()
+    chart2._config['height'] = get_full_terminal_height() if use_full_height else get_optimal_chart_height()
     chart2.line(x_pos, exp_vals, color='green', label='exp(x/5)')
     chart2.line(x_pos, log_vals, color='purple', label='ln(x)')
     chart2.title("Growth and Decay Functions")
@@ -285,16 +294,18 @@ def demo_mathematical_visualizations():
     
     plt.log_success("✓ Mathematical visualizations complete")
 
-def demo_data_analysis_workflow():
+def demo_data_analysis_workflow(use_full_height=False):
     """Simulate a complete data analysis workflow"""
     plt.log_info("🔍 Data Analysis Workflow Demonstration...")
     
     # Step 1: Raw data exploration
-    plt.log_info("📥 Loading and exploring raw data...")
+    from chuk_term import ui
+    ui.clear_screen()
+    plt.log_info("📥 Step 1/3: Loading and exploring raw data...")
     raw_data = [random.gauss(100, 15) for _ in range(50)]
     
     chart1 = plt.Chart(use_banners=True, banner_title="📊 Raw Data Exploration")
-    chart1._config['height'] = get_optimal_chart_height()
+    chart1._config['height'] = get_full_terminal_height() if use_full_height else get_optimal_chart_height()
     chart1.scatter(list(range(len(raw_data))), raw_data, color='gray', label='Raw Data')
     chart1.title("Step 1: Raw Data Points")
     chart1.xlabel("Sample Index")
@@ -305,7 +316,8 @@ def demo_data_analysis_workflow():
     time.sleep(1)
     
     # Step 2: Data processing
-    plt.log_info("⚙️ Processing and smoothing data...")
+    ui.clear_screen()
+    plt.log_info("⚙️ Step 2/3: Processing and smoothing data...")
     # Simple moving average
     window = 5
     smoothed_data = []
@@ -315,7 +327,7 @@ def demo_data_analysis_workflow():
         smoothed_data.append(sum(raw_data[start:end]) / (end - start))
     
     chart2 = plt.Chart(use_banners=True, banner_title="🔧 Data Processing Pipeline")
-    chart2._config['height'] = get_optimal_chart_height()
+    chart2._config['height'] = get_full_terminal_height() if use_full_height else get_optimal_chart_height()
     chart2.scatter(list(range(len(raw_data))), raw_data, color='lightblue', label='Raw')
     chart2.line(list(range(len(smoothed_data))), smoothed_data, color='red', label='Smoothed')
     chart2.title("Step 2: Data Smoothing & Filtering")
@@ -327,7 +339,8 @@ def demo_data_analysis_workflow():
     time.sleep(1)
     
     # Step 3: Statistical analysis
-    plt.log_info("📈 Statistical analysis...")
+    ui.clear_screen()
+    plt.log_info("📈 Step 3/3: Statistical analysis...")
     mean_val = sum(smoothed_data) / len(smoothed_data)
     std_val = (sum((x - mean_val)**2 for x in smoothed_data) / len(smoothed_data))**0.5
     
@@ -344,7 +357,7 @@ def demo_data_analysis_workflow():
     bin_centers = [min_val + (i + 0.5) * bin_width for i in range(bins)]
     
     chart3 = plt.Chart(use_banners=True, banner_title="📊 Statistical Analysis")
-    chart3._config['height'] = get_optimal_chart_height()
+    chart3._config['height'] = get_full_terminal_height() if use_full_height else get_optimal_chart_height()
     chart3.bar(list(range(len(hist_counts))), hist_counts, color='green')
     chart3.title(f"Step 3: Distribution (μ={mean_val:.1f}, σ={std_val:.1f})")
     chart3.show()
@@ -352,7 +365,7 @@ def demo_data_analysis_workflow():
     plt.log_success("✓ Statistical analysis complete")
     plt.log_info(f"📊 Mean: {mean_val:.2f}, Std Dev: {std_val:.2f}")
 
-def demo_theme_showcase():
+def demo_theme_showcase(use_full_height=False):
     """Complete Theme Comparison - Comprehensive demonstration of all available themes"""
     plt.log_success("🎨 Starting Comprehensive Theme Showcase")
     plt.log_info("Each theme will display the same data for easy visual comparison\n")
@@ -382,6 +395,10 @@ def demo_theme_showcase():
     
     for i, theme_name in enumerate(themes_to_show, 1):
         try:
+            # Clear terminal before each theme display
+            from chuk_term import ui
+            ui.clear_screen()
+            
             # Get theme description
             if 'theme_info' in locals():
                 info = theme_info.get(theme_name, {})
@@ -408,7 +425,8 @@ def demo_theme_showcase():
             
             # Use terminal-aware sizing that accounts for banner borders (AFTER banner mode is active)
             plot_width = ut.terminal_width() or 75
-            plt.plotsize(plot_width, get_optimal_chart_height())
+            chart_height = get_full_terminal_height() if use_full_height else get_optimal_chart_height()
+            plt.plotsize(plot_width, chart_height)
             
             # Plot multiple data series to show color variety
             plt.plot(x, growth_series, label='Growth Trend', marker='braille')
@@ -448,7 +466,7 @@ def demo_theme_showcase():
     plt.log_success("🎉 Theme showcase completed!")
     plt.log_info("✨ All themes displayed the same data for easy comparison")
 
-def demo_image_plotting():
+def demo_image_plotting(use_full_height=False):
     """Demonstrate image plotting capabilities"""
     plt.log_info("🖼️ Image Plotting Demo...")
     
@@ -521,7 +539,7 @@ def demo_image_plotting():
         if os.path.exists(temp_path):
             plt.delete_file(temp_path, log=False)
 
-def demo_video_functionality():
+def demo_video_functionality(use_full_height=False):
     """Demonstrate video functionality with proper dependency checking"""
     plt.log_info("🎬 Video Functionality Demo...")
     
@@ -607,7 +625,7 @@ def demo_video_functionality():
         # No cleanup needed - using local file from data folder
         pass
 
-def demo_multimedia_showcase():
+def demo_multimedia_showcase(use_full_height=False):
     """Combined multimedia demonstration"""
     plt.log_info("🎭 Multimedia Showcase Demo...")
     
@@ -712,7 +730,7 @@ def interactive_menu():
             elif choice == '5':
                 demo_mathematical_visualizations()
             elif choice == '6':
-                demo_data_analysis_workflow()
+                demo_data_analysis_workflow(use_full_height=True)
             elif choice == '7':
                 demo_theme_showcase()
             elif choice == '8':
@@ -729,45 +747,55 @@ def interactive_menu():
                 plt.log_info("⏱️  Each demo will display for a few seconds before continuing...")
                 time.sleep(2)  # Initial pause
                 
-                # Run all demos with screen clearing between each
+                # Run all demos with screen clearing before each one, using full terminal height
                 ui.clear_screen()
-                demo_banner_styles()
+                plt.log_info("🎭 Starting Demo 1/10: Banner Styles & Themes")
+                demo_banner_styles(use_full_height=True)
                 time.sleep(3)
                 
                 ui.clear_screen()
-                demo_interactive_charts()
+                plt.log_info("📊 Starting Demo 2/10: Interactive-Style Charts")
+                demo_interactive_charts(use_full_height=True)
                 time.sleep(3)
                 
                 ui.clear_screen()
-                demo_multi_chart_dashboard()
+                plt.log_info("🖥️  Starting Demo 3/10: Multi-Chart Dashboard")
+                demo_multi_chart_dashboard(use_full_height=True)
                 time.sleep(3)
                 
                 ui.clear_screen()
-                demo_four_panel_dashboard()
+                plt.log_info("📊 Starting Demo 4/10: Four-Panel Dashboard")
+                demo_four_panel_dashboard(use_full_height=True)
                 time.sleep(3)
                 
                 ui.clear_screen()
-                demo_mathematical_visualizations()
+                plt.log_info("📐 Starting Demo 5/10: Mathematical Visualizations")
+                demo_mathematical_visualizations(use_full_height=True)
                 time.sleep(3)
                 
                 ui.clear_screen()
-                demo_data_analysis_workflow()
+                plt.log_info("🔍 Starting Demo 6/10: Data Analysis Workflow")
+                demo_data_analysis_workflow(use_full_height=True)
                 time.sleep(3)
                 
                 ui.clear_screen()
-                demo_theme_showcase()
+                plt.log_info("🎨 Starting Demo 7/10: Theme Showcase")
+                demo_theme_showcase(use_full_height=True)
                 time.sleep(2)
                 
                 ui.clear_screen()
-                demo_image_plotting()
+                plt.log_info("🖼️ Starting Demo 8/10: Image Plotting")
+                demo_image_plotting(use_full_height=True)
                 time.sleep(2)
                 
                 ui.clear_screen()
-                demo_video_functionality()
+                plt.log_info("🎬 Starting Demo 9/10: Video Functionality")
+                demo_video_functionality(use_full_height=True)
                 time.sleep(2)
                 
                 ui.clear_screen()
-                demo_multimedia_showcase()
+                plt.log_info("🎭 Starting Demo 10/10: Multimedia Showcase")
+                demo_multimedia_showcase(use_full_height=True)
                 time.sleep(2)
                 
                 ui.clear_screen()
