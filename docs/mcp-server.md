@@ -15,6 +15,7 @@ The Plotext Plus MCP (Model Context Protocol) server provides standardized tool 
 ## Installation
 
 ### Requirements
+
 - Python 3.11+ (required by chuk-mcp-server)
 - plotext_plus with MCP optional dependencies
 
@@ -248,28 +249,34 @@ The plotext_plus MCP server provides ready-to-use prompts via the MCP prompt API
 ### Available Prompts
 
 #### Basic Plotting Prompts
+
 - **basic_scatter**: Simple scatter plot example
 - **basic_bar_chart**: Bar chart with sample data  
 - **line_plot_with_theme**: Line plot with theme application
 
 #### Advanced Plotting Prompts
+
 - **matrix_heatmap**: Correlation matrix visualization
 - **multi_step_workflow**: Complex multi-step analysis workflow
 - **professional_bar_chart**: Styled bar chart with banner mode
 
 #### Theme and Styling Prompts
+
 - **theme_exploration**: Compare multiple themes on same data
 - **banner_mode_demo**: Banner mode demonstration with dashboard styling
 
 #### Utility Function Prompts
+
 - **terminal_width_optimization**: Terminal-aware plot sizing
 - **colorized_output**: Color formatting and system metrics
 
 #### Interactive Analysis Prompts
+
 - **regional_sales_analysis**: Multi-dataset regional comparison
 - **comparative_visualization**: Side-by-side data comparison
 
 #### Testing and Workflow Prompts
+
 - **error_handling_test**: Edge case and error handling testing
 - **performance_testing**: Large dataset performance evaluation
 - **complete_workflow**: End-to-end visualization pipeline
@@ -469,6 +476,7 @@ The plotext_plus MCP server provides seamless integration with mcp-cli, enabling
 Before creating charts, explore what's available:
 
 #### List Available Tools
+
 ```bash
 uv run python -m mcp_cli --config-file plotext_config.json tools
 ```
@@ -476,6 +484,7 @@ uv run python -m mcp_cli --config-file plotext_config.json tools
 This shows all plotting tools like `scatter_plot`, `line_plot`, `bar_chart`, etc.
 
 #### Browse Available Prompts
+
 ```bash
 uv run python -m mcp_cli --config-file plotext_config.json prompts
 ```
@@ -483,6 +492,7 @@ uv run python -m mcp_cli --config-file plotext_config.json prompts
 This displays ready-to-use example prompts for common charting scenarios.
 
 #### Check Server Status
+
 ```bash
 uv run python -m mcp_cli --config-file plotext_config.json servers
 ```
@@ -497,15 +507,15 @@ Once connected, you can create charts using natural language prompts or by direc
 
 Start a chat session and describe what you want:
 
-```
+```text
 > Create a scatter plot showing the relationship between x=[1,2,3,4,5] and y=[1,4,9,16,25] with title "Quadratic Function"
 ```
 
-```
+```text
 > Make a bar chart with categories ["Q1","Q2","Q3","Q4"] and values [120,150,180,200] titled "Quarterly Sales"
 ```
 
-```
+```text
 > Plot a line chart of temperature data: x=[1,2,3,4,5,6,7] and y=[20,22,25,28,26,24,21] using dark theme
 ```
 
@@ -513,15 +523,15 @@ Start a chat session and describe what you want:
 
 Use the built-in prompts directly in your chat:
 
-```
+```text
 > Use the "basic_scatter" prompt
 ```
 
-```
+```text
 > Apply the "multi_step_workflow" prompt for complex analysis
 ```
 
-```
+```text
 > Run the "theme_exploration" prompt to compare different visual styles
 ```
 
@@ -529,7 +539,7 @@ Use the built-in prompts directly in your chat:
 
 #### Multi-Step Data Analysis
 
-```
+```text
 > I have sales data by region: East=[100,120,110], West=[80,95,105], North=[60,75,85], South=[90,100,115] over 3 quarters.
 
 Please:
@@ -541,13 +551,13 @@ Please:
 
 #### Theme and Styling Exploration
 
-```
+```text
 > Show me all available themes, then create the same scatter plot using three different themes for comparison
 ```
 
 #### Performance Testing
 
-```
+```text
 > Generate large datasets (100+ points) and test plotting performance with different chart types
 ```
 
@@ -611,7 +621,7 @@ Please:
 
 Start with banner mode and create multiple visualizations:
 
-```
+```text
 > Enable banner mode with title "Data Analysis Dashboard"
 > Create a line plot showing trend data over time
 > Add a bar chart for category comparisons
@@ -620,14 +630,14 @@ Start with banner mode and create multiple visualizations:
 
 #### 2. Statistical Visualization
 
-```
+```text
 > Create a heatmap from correlation matrix: [[1.0,0.8,0.3],[0.8,1.0,0.5],[0.3,0.5,1.0]]
 > Add appropriate color scheme and title "Feature Correlation"
 ```
 
 #### 3. Performance Monitoring
 
-```
+```text
 > Plot system metrics over time with multiple data series
 > Use different colors for CPU, memory, and disk usage
 > Enable real-time update capability
@@ -635,7 +645,7 @@ Start with banner mode and create multiple visualizations:
 
 #### 4. Report Generation
 
-```
+```text
 > Create professional charts for quarterly business review
 > Include revenue trends, growth metrics, and regional performance
 > Export charts with consistent branding and themes
@@ -770,19 +780,19 @@ The prompts are organized into logical categories for easy discovery:
 
 **Create a Simple Scatter Plot**
 
-```
+```text
 Create a scatter plot showing the relationship between x=[1,2,3,4,5] and y=[1,4,9,16,25] with the title "Quadratic Function".
 ```
 
 **Generate a Bar Chart**
 
-```
+```text
 Make a bar chart showing sales data: categories=["Q1","Q2","Q3","Q4"] and values=[120,150,180,200] with title "Quarterly Sales".
 ```
 
 **Create a Line Plot with Theme**
 
-```
+```text
 Plot a line chart of temperature data over time: x=[1,2,3,4,5,6,7] and y=[20,22,25,28,26,24,21] using the "dark" theme with title "Weekly Temperature".
 ```
 
@@ -790,13 +800,13 @@ Plot a line chart of temperature data over time: x=[1,2,3,4,5,6,7] and y=[20,22,
 
 **Matrix Heatmap Visualization**
 
-```
+```text
 Create a heatmap from this 3x3 correlation matrix: [[1.0,0.8,0.3],[0.8,1.0,0.5],[0.3,0.5,1.0]] with title "Feature Correlation".
 ```
 
 **Multi-step Visualization Workflow**
 
-```
+```text
 1. First, show me available themes
 2. Set the plot size to 100x30
 3. Apply the "elegant" theme
@@ -806,7 +816,7 @@ Create a heatmap from this 3x3 correlation matrix: [[1.0,0.8,0.3],[0.8,1.0,0.5],
 
 **Custom Styling and Configuration**
 
-```
+```text
 Create a professional-looking bar chart with:
 - Data: ["Product A", "Product B", "Product C"] with values [45, 67, 23]
 - Enable banner mode with title "Sales Report" and subtitle "Q3 2024"
@@ -818,13 +828,13 @@ Create a professional-looking bar chart with:
 
 **Theme Exploration**
 
-```
+```text
 Show me all available themes, then create the same scatter plot [1,2,3,4] vs [10,20,15,25] using three different themes for comparison.
 ```
 
 **Banner Mode Demonstration**
 
-```
+```text
 Enable banner mode with title "Data Analysis Dashboard" and create a line plot showing trend data: months=["Jan","Feb","Mar","Apr","May"] and growth=[100,110,125,140,160].
 ```
 
@@ -832,13 +842,13 @@ Enable banner mode with title "Data Analysis Dashboard" and create a line plot s
 
 **Terminal and Environment Info**
 
-```
+```text
 What's my current terminal width? Then create a plot that optimally uses the full width for displaying time series data.
 ```
 
 **Colorized Output**
 
-```
+```text
 Use the colorize function to create colored status messages, then generate a plot showing system performance metrics.
 ```
 
@@ -846,7 +856,7 @@ Use the colorize function to create colored status messages, then generate a plo
 
 **Data Analysis Workflow**
 
-```
+```text
 I have sales data by region: East=[100,120,110], West=[80,95,105], North=[60,75,85], South=[90,100,115] over 3 quarters. 
 
 Please:
@@ -858,7 +868,7 @@ Please:
 
 **Comparative Visualization**
 
-```
+```text
 Compare two datasets using multiple visualization types:
 - Dataset 1: [5,10,15,20,25]  
 - Dataset 2: [3,8,18,22,28]
@@ -870,7 +880,7 @@ Compare two datasets using multiple visualization types:
 
 **Handling Invalid Data**
 
-```
+```text
 Try to create plots with various data scenarios and show how the system handles edge cases:
 - Empty datasets
 - Mismatched array lengths  
@@ -882,7 +892,7 @@ Try to create plots with various data scenarios and show how the system handles 
 
 **Large Dataset Visualization**
 
-```
+```text
 Generate and plot large datasets (100+ points) to test performance:
 - Create random data arrays
 - Time the plotting operations
@@ -894,7 +904,7 @@ Generate and plot large datasets (100+ points) to test performance:
 
 **Complete Workflow Test**
 
-```
+```text
 Execute a complete visualization workflow:
 1. Check system configuration
 2. List available themes
