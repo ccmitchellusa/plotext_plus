@@ -1,0 +1,40 @@
+# AI Context for Plotext
+
+## What is this project?
+A Python library for creating terminal-based charts and plots with enhanced visual styling through chuk-term integration.
+
+## Key Technologies
+- Python 3.10+
+- Chuk-term (terminal enhancement)
+- Rich (panel rendering)
+- UV (package manager)
+- Pytest (testing)
+
+## Recent Changes
+- Migrated to modern src-layout structure
+- Added chuk-term integration for enhanced banners
+- Created new object-oriented API alongside traditional API
+- Implemented UV package management
+- Added comprehensive example and test suites
+
+## How to work with this codebase
+1. Use `uv run` for all Python commands
+2. Source code is in `src/plotext/`
+3. Run examples with `uv run python examples/[filename].py`
+4. Tests are in `tests/` directory
+5. Maintain 100% backward compatibility
+
+## Key Files
+- `src/plotext/_core.py` - Original API (keep unchanged)
+- `src/plotext/_api.py` - New modern API
+- `src/plotext/_output.py` - Enhanced output system
+- `pyproject.toml` - UV configuration
+- `examples/` - Working code examples
+- `llms.txt` - Comprehensive AI documentation
+
+## Current Architecture
+The codebase has two parallel APIs:
+1. Traditional functional API (preserved for compatibility)  
+2. Modern object-oriented API with chuk-term integration
+
+Both APIs share the same underlying plotting engine but have different interfaces.

@@ -1,0 +1,131 @@
+# Plotext - Terminal Plotting Library
+
+## Project Overview
+Plotext is a Python library for creating beautiful charts and plots directly in the terminal using ASCII/ANSI graphics. It has been modernized with chuk-term integration for enhanced visual output and supports both traditional and modern object-oriented APIs.
+
+## Key Features
+- Zero dependencies for core functionality
+- Terminal-based plotting with ASCII/ANSI graphics
+- Support for scatter plots, line plots, bar charts, histograms, and more
+- Chuk-term integration for enhanced banners and theming
+- Modern object-oriented API alongside traditional functional API
+- Rich terminal output with customizable themes
+- Export capabilities (text, HTML)
+- Command-line interface
+- Python 3.10+ support
+
+## Architecture
+
+### Core Components
+- `src/plotext/_core.py` - Main public API functions (backward compatible)
+- `src/plotext/_api.py` - Modern object-oriented API with method chaining
+- `src/plotext/_output.py` - Enhanced output system with chuk-term integration
+- `src/plotext/_figure.py` - Figure and subplot management
+- `src/plotext/_monitor.py` - Plot data container and rendering coordination  
+- `src/plotext/_build.py` - Core plot building and rendering logic
+- `src/plotext/_utility.py` - Terminal utilities and helper functions
+
+### New Modern API Features
+- Chart class with fluent interface and method chaining
+- Quick functions: quick_scatter(), quick_line(), quick_bar()
+- Banner mode with Rich panel integration
+- Chuk-term output levels: log_info(), log_success(), log_warning(), log_error()
+- Enhanced theming and visual styling
+
+## Directory Structure
+```
+plotext/
+├── src/plotext/           # Source code (modern src-layout)
+├── examples/              # Usage examples and demos
+├── tests/                 # Test suites
+├── docs/                  # Documentation
+├── pyproject.toml         # Modern UV-based configuration
+└── README.md             # Project documentation
+```
+
+## Usage Examples
+
+### Traditional API (Backward Compatible)
+```python
+import plotext as plt
+
+x = [1, 2, 3, 4, 5]
+y = [1, 4, 9, 16, 25]
+
+plt.scatter(x, y)
+plt.title("Simple Scatter Plot")
+plt.show()
+```
+
+### Modern Object-Oriented API
+```python
+import plotext as plt
+
+chart = (plt.Chart(use_banners=True, banner_title="📊 Data Analysis")
+         .scatter(x, y, color='blue', label='Data Points')
+         .title("Enhanced Scatter Plot")
+         .xlabel("X Values")
+         .ylabel("Y Values")
+         .show())
+```
+
+### Quick Functions
+```python
+import plotext as plt
+
+plt.quick_scatter(x, y, title="Quick Plot", use_banners=True)
+plt.quick_line(x, y, title="Quick Line", banner_title="📈 Trends")
+plt.quick_bar(labels, values, title="Quick Bar Chart")
+```
+
+## Key Classes and Functions
+
+### Chart Class (New)
+- `Chart(use_banners=False, banner_title=None)` - Main chart class
+- `.scatter(x, y, **kwargs)` - Add scatter plot data
+- `.line(x, y, **kwargs)` - Add line plot data  
+- `.bar(labels, values, **kwargs)` - Add bar chart data
+- `.title(title)`, `.xlabel(label)`, `.ylabel(label)` - Set labels
+- `.show()` - Render and display chart
+
+### Output Functions (New)
+- `banner_mode(enabled=True, title=None)` - Enable/disable banner mode
+- `log_info(message)`, `log_success(message)` - Chuk-term styled output
+- `log_warning(message)`, `log_error(message)` - Status messages
+
+### Traditional API Functions (Preserved)
+- `scatter(x, y, **kwargs)`, `plot(x, y, **kwargs)`, `bar(x, y, **kwargs)`
+- `title(title)`, `xlabel(label)`, `ylabel(label)`
+- `show()`, `clear_figure()`, `save_fig(path)`
+- `subplot(row, col)`, `subplots(rows, cols)`
+
+## Dependencies
+- **chuk-term**: Enhanced terminal output and theming
+- **rich**: Panel and layout rendering (via chuk-term)
+- **pillow** (optional): Image plotting support
+- **opencv-python** (optional): Video/animation support
+
+## Build and Installation
+Uses UV package manager with modern pyproject.toml configuration:
+```bash
+uv install
+uv run python examples/basic_plots.py
+uv run python -m pytest tests/
+```
+
+## Testing
+- `tests/test_integration.py` - Basic integration tests
+- `tests/test_new_api.py` - New API functionality tests  
+- `examples/modern_tests.py` - Comprehensive demonstration suite
+
+## Compatibility
+- Maintains 100% backward compatibility with existing plotext code
+- Users can gradually adopt new features without breaking changes
+- Both APIs can be used simultaneously in the same project
+
+## AI Assistant Notes
+- This library is particularly useful for creating terminal-based dashboards and data visualizations
+- The banner mode provides enhanced visual appeal for presentations
+- The object-oriented API enables more complex, multi-series visualizations
+- Consider using quick functions for rapid prototyping and simple plots
+- The chuk-term integration provides professional-quality output styling

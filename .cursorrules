@@ -1,0 +1,53 @@
+# Plotext Development Rules for AI Assistants
+
+## Project Context
+This is a modern Python terminal plotting library with chuk-term integration for enhanced visual output.
+
+## Code Style
+- Follow PEP 8 Python style guidelines
+- Use descriptive variable and function names
+- Add type hints where appropriate
+- Keep functions focused and small
+- Prefer composition over inheritance
+
+## Architecture Principles
+- Maintain backward compatibility at all costs
+- Use dependency injection for testability  
+- Separate concerns (plotting logic vs output formatting)
+- Follow the src-layout project structure
+
+## Key Patterns
+- Method chaining for fluent APIs
+- Factory pattern for chart creation
+- Strategy pattern for different output modes
+- Observer pattern for theme changes
+
+## Testing
+- Write tests for all new features
+- Ensure backward compatibility tests pass
+- Use meaningful test names that describe behavior
+- Mock external dependencies (chuk-term, rich)
+
+## Dependencies
+- Core library should have minimal dependencies
+- Optional features can have additional dependencies
+- Always check if dependencies are available before using
+
+## Documentation
+- Update docstrings for all public functions
+- Add examples to complex functions
+- Keep README.md current with new features
+- Update llms.txt when adding major features
+
+## Common Pitfalls
+- Don't break existing API contracts
+- Handle terminal size edge cases gracefully
+- Test on different terminal emulators
+- Be careful with ANSI escape sequences
+
+## File Organization
+- Source code in src/plotext/
+- Examples in examples/
+- Tests in tests/
+- Use descriptive file names
+- Keep modules focused on single responsibilities
