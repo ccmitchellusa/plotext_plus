@@ -191,7 +191,7 @@ themes['dracula'] = [(40, 42, 54), (248, 248, 242), (139, 233, 253), 'bold', seq
 # Solarized Dark - popular dark theme with muted colors
 sequence = [(42, 161, 152), (133, 153, 0), (181, 137, 0), (203, 75, 22), (211, 54, 130)]  # base0, green, yellow, orange, magenta  
 sequence += [el for el in color_sequence if el not in sequence]
-themes['solarized_dark'] = [(0, 43, 54), (131, 148, 150), (147, 161, 161), no_color, sequence]
+themes['solarized_dark'] = [(0, 43, 54), (5, 5, 5), (147, 161, 161), no_color, sequence]
 
 # Solarized Light - light version of solarized
 sequence = [(42, 161, 152), (133, 153, 0), (181, 137, 0), (203, 75, 22), (211, 54, 130)]  # same colors as dark

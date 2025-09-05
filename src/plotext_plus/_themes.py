@@ -140,7 +140,7 @@ def create_chuk_term_themes():
     sequence = [rgb_colors['sol_cyan'], rgb_colors['sol_green'], rgb_colors['sol_yellow'],
                rgb_colors['sol_blue'], rgb_colors['sol_magenta'], rgb_colors['sol_red']]
     sequence += [el for el in color_sequence if el not in sequence]
-    themes['solarized_dark'] = [rgb_colors['sol_base03'], rgb_colors['sol_base0'], 
+    themes['solarized_dark'] = [rgb_colors['sol_base03'], (5, 5, 5), 
                                rgb_colors['sol_base1'], no_color, sequence]
     
     # Solarized Light

@@ -164,6 +164,9 @@ def demo_four_panel_dashboard(use_full_height=False):
     # Clear any existing plot data to avoid conflicts
     core_plt.clear_figure()
     
+    # Apply solarized theme
+    core_plt.theme('solarized_dark')
+    
     # Create 2x2 subplot grid
     core_plt.subplots(2, 2)
     # Calculate dynamic dimensions based on current terminal
