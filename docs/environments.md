@@ -36,7 +36,7 @@ plx.from_matplotlib(fig)
 plx.show()
 ```
 
-![matplotlib](https://raw.githubusercontent.com/ccmitchellusa/plotext/master/data/matplotlib.png)
+![matplotlib](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/matplotlib.png)
 
 These feature is under development: please report any bug or development idea.
 
@@ -131,7 +131,7 @@ Integration with the package `tkinter`, where a test image is downloaded in the 
 ```python
 import tkinter as tk
 import plotext_plus as plt
-from plotext._utility import to_rgb, uncolorize
+from plotext_plus._utility import to_rgb, uncolorize
 import tkinter.font as tkfont
 
 image_path = 'cat.jpg'

@@ -172,10 +172,10 @@ $RECYCLE.BIN/
 
 # Project specific
 examples/output/
-*.png
+#*.png
 *.jpg
-*.gif
-*.mp4
+#*.gif
+#*.mp4
 *.avi
 *.mov
 temp/

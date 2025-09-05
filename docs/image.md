@@ -41,7 +41,7 @@ or directly on terminal:
 python3 -c "import plotext_plus as plt; path = 'cat.jpg'; plt.download(plt.test_image_url, path); plt.image_plot(path); plt.title('A very Cute Cat'); plt.show(); plt.delete_file(path)"
 ```
 
-![image](https://raw.githubusercontent.com/ccmitchellusa/plotext/master/data/image.png)
+![image](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/image.png)
 
 More documentation can be accessed with `doc.image_plot()`.
 
