@@ -1,4 +1,4 @@
-# 🎨 Plotext Plus - Modern Terminal Plotting
+# 📊 Plotext+ - Modern Terminal Plotting
 
 [![PyPi](https://badge.fury.io/py/plotext_plus.svg)](https://badge.fury.io/py/plotext_plus)
 [![GitHub stars](https://img.shields.io/github/stars/piccolomo/plotext_plus.svg)](https://github.com/ccmitchellusa/plotext_plus/stargazers)
@@ -8,7 +8,7 @@
 
 ![logo](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/logo.png)
 
-**Plotext Plus plots directly in your terminal** with stunning visuals, modern APIs, and professional styling.
+**Plotext+ plots directly in your terminal** with stunning visuals, modern APIs, and professional styling.
 
 ## ✨ Key Features
 
@@ -27,6 +27,7 @@
 ## 🚀 Quick Start
 
 ### Installation
+
 ```bash
 # Modern Python package management
 uv add plotext_plus
@@ -39,6 +40,7 @@ pip install plotext_plus[image,video]
 ```
 
 ### Basic Usage
+
 ```python
 import plotext_plus as plt
 
@@ -49,6 +51,7 @@ plt.show()
 ```
 
 ### Enhanced Visual Styling ✨
+
 ```python
 import plotext_plus as plt
 
@@ -67,6 +70,7 @@ plt.show()
 ```
 
 ### Modern Chart Classes 🎯
+
 ```python
 import plotext_plus as plt
 
@@ -82,7 +86,8 @@ chart = (plt.ScatterChart([1, 2, 3, 4], [1, 4, 9, 16])
 plt.quick_scatter(x_data, y_data, title="Quick Analysis")
 ```
 
-### Clean Public API 🔧
+### Public API 🔧
+
 ```python
 import plotext_plus as plt
 
@@ -94,7 +99,8 @@ plt.utilities.log_success("Plot ready!")  # Helper utilities
 
 ## 🏗️ Architecture & API
 
-### Clean Public API Structure
+### Public API Structure
+
 ```python
 # 🎯 Main Modules (Public API - no underscores)
 plotext_plus.plotting    # Core plotting functions
@@ -110,6 +116,7 @@ plotext_plus._themes     # Theme internals
 ```
 
 ### Project Structure
+
 ```bash
 plotext_plus/
 ├── src/plotext_plus/              # Modern src-layout
@@ -129,12 +136,14 @@ plotext_plus/
 ## 🎨 Enhanced Features
 
 ### 🎭 Visual Enhancements
+
 - **Professional Banners**: Automatic width detection and border styling
 - **Advanced Theming**: Multiple built-in themes with chuk-term integration
 - **Smart Layouts**: Charts automatically resize to fit terminal dimensions
 - **Rich Colors**: 24-bit color support with automatic fallbacks
 
 ### 🚀 Developer Experience  
+
 - **Clean API**: Public modules clearly separated from internals
 - **Method Chaining**: Fluent interface for complex plot creation
 - **Quick Functions**: One-liner plots for rapid prototyping
@@ -164,6 +173,7 @@ python examples/theme_showcase_demo.py   # Theme comparison
 ## 📚 Complete Documentation
 
 ### 🎯 **Core Plotting**
+
 - **[📊 Basic Plots](docs/basic.md)** - Scatter, line, and fundamental plotting
 - **[📈 Bar Charts](docs/bar.md)** - Bar plots, histograms, and variations  
 - **[📅 DateTime Plots](docs/datetime.md)** - Time series and candlestick charts
@@ -171,23 +181,27 @@ python examples/theme_showcase_demo.py   # Theme comparison
 - **[🎨 Decorator Plots](docs/decorator.md)** - Text, lines, and shape overlays
 
 ### 🖼️ **Multimedia & Advanced**
+
 - **[🖼️ Image Plotting](docs/image.md)** - Display images and GIFs in terminal
 - **[🎬 Video Streaming](docs/video.md)** - Play videos and YouTube content
 - **[📐 Subplots](docs/subplots.md)** - Multiple plots and complex layouts
 
 ### ⚙️ **Configuration & Styling**
+
 - **[🎨 Themes](docs/themes.md)** - Built-in themes and customization
 - **[⚙️ Settings](docs/settings.md)** - Plot configuration and options
 - **[📏 Aspect](docs/aspect.md)** - Size, scaling, and layout control
 - **[🔧 Chart Classes](docs/chart_classes.md)** - Object-oriented API reference
 
 ### 🛠️ **Tools & Integration**  
+
 - **[🔧 Utilities](docs/utilities.md)** - Helper functions and command-line tools
 - **[🌐 Environments](docs/environments.md)** - IDE and platform compatibility
 - **[🏗️ API Structure](docs/api.md)** - Clean public API organization
 - **[📝 Notes](docs/notes.md)** - Installation, tips, and troubleshooting
 
 ### 🚀 **Getting Started Guides**
+
 1. **[👋 Introduction](docs/basic.md#introduction)** - First steps with Plotext
 2. **[📦 Installation](docs/notes.md#install)** - Setup and dependencies  
 3. **[🎯 Quick Examples](#-quick-start)** - Jump right in with code samples
