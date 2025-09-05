@@ -150,6 +150,53 @@ async def matrix_plot(data: List[List[Union[int, float]]], title: Optional[str] 
     return output + show_output
 
 
+@tool
+async def image_plot(image_path: str, title: Optional[str] = None, 
+                    marker: Optional[str] = None, style: Optional[str] = None, 
+                    fast: bool = False, grayscale: bool = False) -> str:
+    """Display an image in the terminal using ASCII art.
+    
+    Args:
+        image_path: Path to the image file to display
+        title: Plot title (optional)
+        marker: Custom marker for image rendering (optional)
+        style: Style for image rendering (optional)
+        fast: Enable fast rendering mode for better performance (optional)
+        grayscale: Render image in grayscale (optional)
+        
+    Returns:
+        The rendered image plot as text
+    """
+    plotting.clear_figure()
+    if title:
+        plotting.title(title)
+    
+    _, output = _capture_plot_output(plotting.image_plot, image_path, 
+                                   marker=marker, style=style, 
+                                   fast=fast, grayscale=grayscale)
+    _, show_output = _capture_plot_output(plotting.show)
+    
+    return output + show_output
+
+
+@tool
+async def play_gif(gif_path: str) -> str:
+    """Play a GIF animation in the terminal.
+    
+    Args:
+        gif_path: Path to the GIF file to play
+        
+    Returns:
+        Confirmation message (GIF plays automatically)
+    """
+    plotting.clear_figure()
+    
+    # play_gif handles its own output and doesn't need show()
+    plotting.play_gif(gif_path)
+    
+    return f"Playing GIF: {gif_path}"
+
+
 # Chart Class Tools
 @tool
 async def quick_scatter(x: List[Union[int, float]], y: List[Union[int, float]], 
@@ -202,6 +249,32 @@ async def quick_bar(labels: List[str], values: List[Union[int, float]],
         The rendered chart as text
     """
     _, output = _capture_plot_output(charts.quick_bar, labels, values, title=title, theme=theme_name)
+    return output
+
+
+@tool
+async def quick_pie(labels: List[str], values: List[Union[int, float]], 
+                   colors: Optional[List[str]] = None, title: Optional[str] = None, 
+                   show_values: bool = True, show_percentages: bool = True,
+                   show_values_on_slices: bool = False) -> str:
+    """Create a quick pie chart using the chart classes API.
+    
+    Args:
+        labels: List of pie segment labels
+        values: List of pie segment values
+        colors: List of colors for segments (optional)
+        title: Chart title (optional)
+        show_values: Show values in legend (optional, default True)
+        show_percentages: Show percentages in legend (optional, default True)
+        show_values_on_slices: Show values directly on pie slices (optional, default False)
+        
+    Returns:
+        The rendered pie chart as text
+    """
+    _, output = _capture_plot_output(charts.quick_pie, labels, values, colors=colors, 
+                                   title=title, show_values=show_values, 
+                                   show_percentages=show_percentages,
+                                   show_values_on_slices=show_values_on_slices)
     return output
 
 
@@ -371,6 +444,63 @@ async def get_plot_config() -> Dict[str, Any]:
     }
 
 
+# Resource for tool documentation/info
+@resource("info://plotext")
+async def get_tool_info() -> Dict[str, Any]:
+    """Get comprehensive information about all available plotting tools."""
+    return {
+        "server_info": {
+            "name": "Plotext Plus MCP Server",
+            "description": "Model Context Protocol server for plotext_plus terminal plotting library",
+            "version": "1.0.0",
+            "capabilities": ["plotting", "theming", "multimedia", "charts"]
+        },
+        "plotting_tools": {
+            "scatter_plot": "Create scatter plots with x/y data points",
+            "line_plot": "Create line plots for time series and continuous data", 
+            "bar_chart": "Create bar charts for categorical data",
+            "matrix_plot": "Create heatmaps from 2D matrix data",
+            "image_plot": "Display images in terminal using ASCII art",
+            "play_gif": "Play animated GIFs in the terminal"
+        },
+        "quick_chart_tools": {
+            "quick_scatter": "Quickly create scatter charts with theming",
+            "quick_line": "Quickly create line charts with theming",
+            "quick_bar": "Quickly create bar charts with theming", 
+            "quick_pie": "Quickly create pie charts with custom colors and options"
+        },
+        "theme_tools": {
+            "get_available_themes": "List all available color themes",
+            "apply_plot_theme": "Apply a theme to plots"
+        },
+        "utility_tools": {
+            "get_terminal_width": "Get current terminal width",
+            "colorize_text": "Apply colors to text output",
+            "log_info": "Output informational messages",
+            "log_success": "Output success messages", 
+            "log_warning": "Output warning messages",
+            "log_error": "Output error messages"
+        },
+        "configuration_tools": {
+            "set_plot_size": "Set plot dimensions",
+            "enable_banner_mode": "Enable/disable banner mode",
+            "clear_plot": "Clear current plot"
+        },
+        "supported_formats": {
+            "image_formats": ["PNG", "JPG", "JPEG", "BMP", "GIF (static)"],
+            "gif_formats": ["GIF (animated)"],
+            "chart_types": ["scatter", "line", "bar", "pie", "matrix/heatmap", "image"],
+            "themes": "20+ built-in themes including solarized, dracula, cyberpunk"
+        },
+        "usage_tips": {
+            "pie_charts": "Best for 3-7 categories, use full terminal dimensions",
+            "images": "Use fast=True for better performance with large images",
+            "themes": "Apply themes before creating plots for consistent styling",
+            "banners": "Enable banner mode for professional-looking outputs"
+        }
+    }
+
+
 # MCP Prompts for common plotting scenarios
 @prompt("basic_scatter")
 async def basic_scatter_prompt() -> str:
@@ -492,6 +622,91 @@ async def complete_workflow_prompt() -> str:
 4. Create multiple chart types with sample data
 5. Apply different themes to each
 6. Generate a summary report"""
+
+
+@prompt("image_display")
+async def image_display_prompt() -> str:
+    """Image plotting example"""
+    return """Display an image in the terminal:
+1. First download the test cat image using utilities.download() with the test_image_url
+2. Display it using image_plot with title 'Test Image Display'
+3. Try both normal and grayscale versions
+4. Clean up by deleting the file afterward"""
+
+
+@prompt("gif_animation")
+async def gif_animation_prompt() -> str:
+    """GIF animation example"""
+    return """Play a GIF animation in terminal:
+1. Download the test Homer Simpson GIF using utilities.download() with test_gif_url
+2. Play the GIF animation using play_gif
+3. Clean up the file afterward
+Note: The GIF will play automatically in the terminal"""
+
+
+@prompt("image_styling")
+async def image_styling_prompt() -> str:
+    """Custom image styling example"""
+    return """Experiment with image rendering styles:
+1. Display the same image with different markers (try 'CuteCat' as marker)
+2. Use 'inverted' style for visual effects
+3. Compare fast vs normal rendering modes
+4. Show both color and grayscale versions"""
+
+
+@prompt("multimedia_showcase")
+async def multimedia_showcase_prompt() -> str:
+    """Complete multimedia demonstration"""
+    return """Showcase multimedia capabilities:
+1. Download and display a static image with custom styling
+2. Download and play an animated GIF
+3. Set appropriate plot sizes for optimal viewing
+4. Add descriptive titles to each display
+5. Clean up all downloaded files"""
+
+
+@prompt("basic_pie_chart")
+async def basic_pie_chart_prompt() -> str:
+    """Basic pie chart example"""
+    return """Create a simple pie chart showing market share data:
+- Categories: ['iOS', 'Android', 'Windows', 'Other']  
+- Values: [35, 45, 15, 5]
+- Use colors: ['blue', 'green', 'orange', 'gray']
+- Add title 'Mobile OS Market Share'
+- Use quick_pie tool for fast creation"""
+
+
+@prompt("pie_chart_styling")
+async def pie_chart_styling_prompt() -> str:
+    """Advanced pie chart styling example"""
+    return """Create a styled pie chart with advanced features:
+1. Use quick_pie with show_values_on_slices=True
+2. Data: Budget categories ['Housing', 'Food', 'Transport', 'Entertainment'] 
+3. Values: [1200, 400, 300, 200] (monthly budget)
+4. Custom colors for each category
+5. Add meaningful title and ensure full terminal usage"""
+
+
+@prompt("pie_chart_comparison")
+async def pie_chart_comparison_prompt() -> str:
+    """Pie chart comparison example"""
+    return """Create multiple pie charts for comparison:
+1. Q1 Sales: ['Product A', 'Product B', 'Product C'] = [30, 45, 25]
+2. Q2 Sales: ['Product A', 'Product B', 'Product C'] = [25, 50, 25] 
+3. Show both charts with different colors
+4. Use appropriate titles ('Q1 Sales Distribution', 'Q2 Sales Distribution')
+5. Discuss the trends visible in the comparison"""
+
+
+@prompt("pie_chart_best_practices")
+async def pie_chart_best_practices_prompt() -> str:
+    """Pie chart best practices demonstration"""
+    return """Demonstrate pie chart best practices:
+1. Start with many categories: ['A', 'B', 'C', 'D', 'E', 'F', 'G'] = [5, 8, 12, 15, 25, 20, 15]
+2. Show why this is problematic (too many small segments)
+3. Combine small categories: ['A+B+C', 'D', 'E', 'F', 'G'] = [25, 15, 25, 20, 15] 
+4. Create the improved version with title 'Improved: Combined Small Categories'
+5. Explain the improvement in readability"""
 
 
 # Main server entry point

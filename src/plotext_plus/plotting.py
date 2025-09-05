@@ -12,7 +12,7 @@ All the core plotting capabilities are exposed through clean, public interfaces.
 # Import all main plotting functions from the internal core module
 from ._core import (
     # Basic plotting functions
-    scatter, plot, bar, 
+    scatter, plot, bar, pie,
     matrix_plot, candlestick,
     
     # Plot customization

@@ -5,6 +5,7 @@
 - [Line Plot](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#line-plot)
 - [Log Plot](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#log-plot)
 - [Stem Plot](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#stem-plot)
+- [Pie Plot](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#pie-plot)
 - [Multiple Data Sets](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#multiple-data-sets)
 - [Multiple Axes Plot](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#multiple-axes-plot)
 
@@ -23,7 +24,7 @@ plt.title("My First Plot")
 plt.show()
 ```
 
-### Modern Object-Oriented API 
+### Modern Object-Oriented API
 
 ```python
 import plotext_plus as plt
@@ -195,6 +196,66 @@ python3 -c "import plotext_plus as plt; y = plt.sin(); plt.plot(y, fillx = True)
 ```
 
 ![stem](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/stem.png)
+[Main Guide](https://github.com/ccmitchellusa/plotext_plus#guide), [Basic Plots](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#basic-plots)
+
+## Pie Plot
+
+For a pie chart visualization use the `pie()` function. Pie charts are ideal for showing proportional data and work best with a small number of segments for better terminal readability.
+
+![pie](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/pie-chart.png)
+
+**Best Practices for Pie Charts**:
+
+- Use full terminal dimensions for optimal resolution: `plt.plotsize(terminal_width, terminal_height - 5)`
+- Limit to 4-6 data segments for clarity in terminal environment
+- Each segment will be rendered with solid block characters and proper aspect ratio
+
+Here is an example:
+
+```python
+import plotext_plus as plt
+
+# Sample data
+labels = ["Python", "JavaScript", "Go", "Rust"]
+values = [45, 30, 15, 10]
+colors = ["blue", "green", "orange", "red"]
+
+# Create pie chart using full terminal dimensions
+terminal_width, terminal_height = plt.terminal_size()
+plt.clear_figure()
+plt.plotsize(terminal_width, terminal_height - 5)
+
+plt.pie(labels, values, colors=colors, title="Programming Languages Usage")
+plt.show()
+```
+
+or directly on terminal:
+
+```console
+python3 -c "import plotext_plus as plt; labels = ['Python', 'JS', 'Go', 'Rust']; values = [45, 30, 15, 10]; w, h = plt.terminal_size(); plt.clear_figure(); plt.plotsize(w, h-5); plt.pie(labels, values, title='Languages'); plt.show()"
+```
+
+**Key Features**:
+
+- **Colored block legend**: Each data label is prefixed with a colored block (█) matching the segment
+- **Percentage display**: Shows both values and percentages in the legend
+- **Dynamic sizing**: Radius automatically adjusts to terminal dimensions
+- **Aspect ratio correction**: Ensures circular appearance across different plot sizes
+- **Gap-free rendering**: Comprehensive scanning ensures solid segment filling
+
+**Parameters**:
+
+- `labels`: List of segment labels
+- `values`: List of corresponding values (will be converted to percentages)
+- `colors`: Optional list of colors for segments (defaults to standard palette)
+- `radius`: Optional custom radius (defaults to optimal size for terminal)
+- `show_values`: Show numeric values in legend (default: True)
+- `show_percentages`: Show percentage values in legend (default: True)
+- `show_values_on_slices`: Display values directly on pie segments (default: False)
+- `title`: Chart title
+
+More documentation can be accessed with `doc.pie()`.
+
 [Main Guide](https://github.com/ccmitchellusa/plotext_plus#guide), [Basic Plots](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#basic-plots)
 
 ## Multiple Data Sets

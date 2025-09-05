@@ -196,7 +196,7 @@ themes['solarized_dark'] = [(0, 43, 54), (5, 5, 5), (147, 161, 161), no_color, s
 # Solarized Light - light version of solarized
 sequence = [(42, 161, 152), (133, 153, 0), (181, 137, 0), (203, 75, 22), (211, 54, 130)]  # same colors as dark
 sequence += [el for el in color_sequence if el not in sequence] 
-themes['solarized_light'] = [(253, 246, 227), (101, 123, 131), (88, 110, 117), no_color, sequence]
+themes['solarized_light'] = [(253, 246, 227), (101, 123, 131), (64, 64, 64), no_color, sequence]
 
 # === CHUK-TERM COMPATIBLE THEMES ===
 # Import and integrate chuk-term compatible themes

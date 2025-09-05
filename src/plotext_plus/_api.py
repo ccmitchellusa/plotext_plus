@@ -84,6 +84,20 @@ class Chart:
         })
         return self
     
+    def pie(self, labels, values, colors=None, radius=None, show_values=True, show_percentages=True, show_values_on_slices=False):
+        """Add pie chart data"""
+        self._data.append({
+            'type': 'pie',
+            'labels': labels,
+            'values': values,
+            'colors': colors,
+            'radius': radius,
+            'show_values': show_values,
+            'show_percentages': show_percentages,
+            'show_values_on_slices': show_values_on_slices
+        })
+        return self
+    
     def title(self, title):
         """Set chart title"""
         self._config['title'] = title
@@ -172,6 +186,16 @@ class Chart:
                     _core.horizontal_bar(data_item['labels'], data_item['values'], color=data_item['color'])
                 else:
                     _core.bar(data_item['labels'], data_item['values'], color=data_item['color'])
+            elif data_item['type'] == 'pie':
+                _core.pie(
+                    data_item['labels'], 
+                    data_item['values'], 
+                    colors=data_item['colors'],
+                    radius=data_item['radius'],
+                    show_values=data_item['show_values'],
+                    show_percentages=data_item['show_percentages'],
+                    show_values_on_slices=data_item['show_values_on_slices']
+                )
             elif data_item['type'] == 'histogram':
                 _core.hist(data_item['data'], bins=data_item['bins'], color=data_item['color'])
         
@@ -763,6 +787,17 @@ class PlotextAPI:
         chart.show()
         return chart
     
+    @staticmethod 
+    def quick_pie(labels, values, colors=None, title=None, use_banners=False, banner_title=None, 
+                  show_values=True, show_percentages=True, show_values_on_slices=False):
+        """Quickly create and display a pie chart"""
+        chart = Chart(use_banners, banner_title)
+        chart.pie(labels, values, colors=colors, show_values=show_values, show_percentages=show_percentages, show_values_on_slices=show_values_on_slices)
+        if title:
+            chart.title(title)
+        chart.show()
+        return chart
+    
     @staticmethod
     def enable_banners(enabled=True, default_title="Plotext Chart"):
         """Globally enable or disable banner mode"""
@@ -797,6 +832,7 @@ create_chart = api.create_chart
 quick_scatter = api.quick_scatter
 quick_line = api.quick_line
 quick_bar = api.quick_bar
+quick_pie = api.quick_pie
 enable_banners = api.enable_banners
 log_info = api.log_info
 log_success = api.log_success
@@ -820,6 +856,7 @@ __all__ = [
     'quick_scatter',
     'quick_line',
     'quick_bar',
+    'quick_pie',
     'enable_banners',
     'log_info',
     'log_success',

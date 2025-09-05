@@ -278,6 +278,25 @@ def matrix_plot(matrix, marker = None, style = None, fast = False):
     _figure._active.matrix_plot(matrix, marker = marker, style = style, fast = fast)
     _figure.show() if _figure._interactive else None
 
+def pie(labels, values, colors = None, radius = None, show_values = True, show_percentages = True, title = None, show_values_on_slices = False):
+    """
+    Create a pie chart representation using terminal characters.
+    
+    Args:
+        labels (list): Labels for each slice
+        values (list): Values for each slice  
+        colors (list, optional): Colors for each slice
+        radius (int, optional): Radius of the pie chart
+        show_values (bool): Whether to show actual values in legend
+        show_percentages (bool): Whether to show percentages in legend
+        title (str, optional): Title for the chart
+        show_values_on_slices (bool): Whether to show values/percentages on pie slices themselves
+    """
+    _figure._active.pie(labels, values, colors = colors, radius = radius, 
+                       show_values = show_values, show_percentages = show_percentages, 
+                       title = title, show_values_on_slices = show_values_on_slices)
+    _figure.show() if _figure._interactive else None
+
 def heatmap(dataframe, color = None, style=None):
     _figure._active.heatmap(dataframe, color = color, style = style)
     _figure.show() if _figure._interactive else None

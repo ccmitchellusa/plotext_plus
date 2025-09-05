@@ -9,6 +9,7 @@
 - [HeatmapChart](#heatmapchart)
 - [MatrixChart](#matrixchart)
 - [StemChart](#stemchart)
+- [PieChart](#piechart)
 - [Chart Class Methods](#chart-class-methods)
 
 [Main Guide](https://github.com/ccmitchellusa/plotext_plus#guide)
@@ -359,6 +360,77 @@ chart.xlabel("Rating (1-10 scale)")
 chart.ylabel("Number of Responses")
 chart.show()
 ```
+
+[Main Guide](https://github.com/ccmitchellusa/plotext_plus#guide), [Chart Classes](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/chart_classes.md#chart-classes)
+
+## PieChart
+
+Specialized class for creating pie charts with segment visualization and legend support.
+
+### Constructor
+
+```python
+PieChart(labels, values, colors=None, radius=None, show_values_on_slices=False, use_banners=False, banner_title=None)
+```
+
+### Enhanced Methods
+
+- `show_values_on_slices(enabled=True)` - Display values directly on pie slices
+- `set_radius(radius)` - Adjust the pie chart radius
+
+### Usage Guidelines
+
+⚠️ **Important**: Pie charts should only be used for a **small number of data values** (typically 3-7 categories) due to the limited resolution of terminal displays. Very small segments may not render clearly.
+
+🖥️ **Best Practice**: Pie charts should be rendered using the **full terminal dimensions** whenever possible to maximize clarity and readability. Use functions like `ut.terminal_size()` to get optimal dimensions.
+
+### Example
+
+```python
+import plotext_plus as plt
+from plotext_plus import utilities as ut
+
+# Get full terminal dimensions for optimal display
+terminal_width, terminal_height = ut.terminal_size()
+
+# Market share data (small number of categories)
+companies = ["Apple", "Samsung", "Google", "Others"]
+market_share = [35, 25, 15, 25]
+colors = ["red", "blue", "green", "orange"]
+
+# Create pie chart using full terminal size
+chart = plt.PieChart(companies, market_share, colors=colors,
+                    use_banners=True, banner_title="📊 Market Analysis")
+
+# Set chart to use maximum terminal space
+chart.size(terminal_width, terminal_height - 5)
+
+chart.title("Smartphone Market Share Q3 2024")
+chart.show()
+
+# Example with values on slices
+chart2 = plt.PieChart(companies, market_share, colors=colors,
+                     show_values_on_slices=True,
+                     use_banners=True, banner_title="📊 Detailed View")
+chart2.size(terminal_width, terminal_height - 5)
+chart2.title("Market Share with Values on Slices")
+chart2.show()
+```
+
+### Features
+
+- **Colored legend**: Each legend entry is prefixed with a colored block (█) matching its pie segment
+- **Aspect ratio correction**: Pie charts automatically adjust for terminal character dimensions to appear circular
+- **Gap-free rendering**: Uses advanced sampling algorithms to minimize visual gaps between segments
+- **Full terminal support**: Optimized to use the entire terminal space for maximum clarity
+
+### Tips for Effective Pie Charts
+
+1. **Limit categories**: Use no more than 5-7 categories for best readability
+2. **Combine small values**: Group small segments into an "Others" category
+3. **Use full screen**: Always render at maximum terminal dimensions
+4. **Choose distinct colors**: Use colors that are easily distinguishable in terminal displays
+5. **Consider alternatives**: For many categories or precise comparisons, consider bar charts instead
 
 [Main Guide](https://github.com/ccmitchellusa/plotext_plus#guide), [Chart Classes](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/chart_classes.md#chart-classes)
 

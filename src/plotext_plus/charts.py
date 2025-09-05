@@ -20,7 +20,7 @@ from ._api import (
     CandlestickChart, HeatmapChart, MatrixChart, StemChart,
     
     # Convenience functions
-    create_chart, quick_scatter, quick_line, quick_bar,
+    create_chart, quick_scatter, quick_line, quick_bar, quick_pie,
     
     # Banner and logging utilities
     enable_banners, log_info, log_success, log_warning, log_error,
@@ -35,7 +35,7 @@ __all__ = [
     'CandlestickChart', 'HeatmapChart', 'MatrixChart', 'StemChart',
     
     # Convenience functions
-    'create_chart', 'quick_scatter', 'quick_line', 'quick_bar',
+    'create_chart', 'quick_scatter', 'quick_line', 'quick_bar', 'quick_pie',
     
     # Utilities
     'enable_banners', 'log_info', 'log_success', 'log_warning', 'log_error',

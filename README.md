@@ -11,7 +11,7 @@
 
 ## ✨ Key Features
 
-🎯 **Multiple Plot Types**: [scatter](docs/basic.md#scatter-plot), [line](docs/basic.md#line-plot), [bar](docs/bar.md), [histogram](docs/bar.md#histogram-plot), [candlestick](docs/datetime.md#candlestick-plot), [heatmap](docs/special.md), [confusion matrix](docs/special.md#confusion-matrix), and more
+🎯 **Multiple Plot Types**: [scatter](docs/basic.md#scatter-plot), [line](docs/basic.md#line-plot), [bar](docs/bar.md), [histogram](docs/bar.md#histogram-plot), [candlestick](docs/datetime.md#candlestick-plot), [heatmap](docs/special.md), [confusion matrix](docs/special.md#confusion-matrix), [pie](docs/basic.md#pie-plot) and more
 
 🎨 **Rich Visuals**: [Banner mode](docs/chart_classes.md), [themes](docs/themes.md), [colored text](docs/utilities.md#colored-text), automatic terminal width detection
 

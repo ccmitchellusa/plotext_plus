@@ -775,6 +775,273 @@ class monitor_class(build_class):
             self.matrix.canvas = '\n'.join([''.join(row) for row in matrix])
             self.fast_plot = True
 
+    def draw_pie(self, labels, values, colors = None, radius = None, show_values = True, show_percentages = True, title = None, show_values_on_slices = False):
+        """
+        Draw a pie chart using filled colored segments and a legend.
+        """
+        import math
+        
+        # Input validation
+        if len(labels) != len(values):
+            raise ValueError("Labels and values must have the same length")
+        
+        # Calculate total and percentages
+        total = sum(values)
+        if total == 0:
+            raise ValueError("Total of values cannot be zero")
+            
+        percentages = [(value / total) * 100 for value in values]
+        
+        # Default colors if not provided
+        if colors is None:
+            color_cycle = ['red', 'blue', 'green', 'orange', 'magenta', 'cyan', 'white']
+            colors = [color_cycle[i % len(color_cycle)] for i in range(len(labels))]
+        
+        # Default radius - calculate based on available terminal space for maximum usage
+        if radius is None:
+            # Get the actual plot area dimensions 
+            plot_width, plot_height = self.size
+            
+            # Calculate radius to fill most of the available space
+            # Account for aspect ratio (terminal chars are ~1.5x taller than wide)
+            aspect_ratio = 1.5
+            max_radius_x = (plot_width / 2) / aspect_ratio
+            max_radius_y = plot_height / 2
+            
+            # Use the smaller dimension to ensure the pie fits, leave some margin for legend
+            radius = min(max_radius_x * 0.75, max_radius_y * 0.85)
+            radius = max(radius, 3)  # Ensure minimum radius of 3
+        
+        # Center the pie chart
+        center_x = 0
+        center_y = 0
+        
+        # Terminal characters have an aspect ratio of approximately 1.5:1 (height:width)
+        # To make circles appear circular, we need to adjust the x-axis scaling
+        aspect_ratio = 1.5
+        
+        # Remove axes - pie charts don't have them
+        self.set_xfrequency(0)
+        self.set_yfrequency(0)
+        self.set_axes_color('default')
+        self.set_canvas_color('default')
+        
+        # Collect all points for each segment, then draw each segment in one call
+        # Use efficient scanning - just slightly beyond the actual pie radius
+        scan_radius_x = int(radius * aspect_ratio * 1.2 + 2)
+        scan_radius_y = int(radius * 1.2 + 2)
+        
+        # Pre-calculate cumulative angles for segment boundaries
+        segment_boundaries = []
+        current_cumulative = 0
+        for value in values:
+            slice_angle = (value / total) * 2 * math.pi
+            segment_boundaries.append((current_cumulative, current_cumulative + slice_angle))
+            current_cumulative += slice_angle
+        
+        # Collect all points for each segment using sets to avoid duplicates
+        segment_points = [set() for _ in range(len(labels))]  # One set per segment
+        
+        # Use FLOOD FILL approach - systematically fill every position in concentric circles
+        # This ensures no gaps by filling from center outward
+        for y_offset in range(-scan_radius_y, scan_radius_y + 1):
+            for x_offset in range(-scan_radius_x, scan_radius_x + 1):
+                # Calculate distance from center with aspect ratio correction
+                # Since terminal chars are ~2x taller than wide, compress x coordinate
+                adjusted_x = x_offset / aspect_ratio
+                distance = math.sqrt(adjusted_x * adjusted_x + y_offset * y_offset)
+                
+                # Fill ALL positions within and slightly beyond the pie circle for complete coverage
+                if distance <= radius * 1.1:  # Even more generous threshold
+                    # Special handling for center point to avoid division by zero in angle calculation
+                    if distance < 0.01:  # Very small threshold for true center
+                        # Center point belongs to the first segment
+                        segment_idx = 0
+                    else:
+                        # Calculate angle for this position using adjusted coordinates
+                        angle = math.atan2(y_offset, adjusted_x)
+                        if angle < 0:
+                            angle += 2 * math.pi
+                        
+                        # Find which segment this position belongs to using robust angle detection
+                        segment_idx = 0
+                        found_segment = False
+                        epsilon = 0.02  # Even larger epsilon for maximum boundary coverage
+                        
+                        for i, (start_angle, end_angle) in enumerate(segment_boundaries):
+                            # Handle wraparound case for segments that cross 0 degrees
+                            if end_angle > 2 * math.pi:
+                                wrap_end = end_angle - 2 * math.pi
+                                if angle >= start_angle - epsilon or angle <= wrap_end + epsilon:
+                                    segment_idx = i
+                                    found_segment = True
+                                    break
+                            else:
+                                # Use very generous boundary detection
+                                # For the last segment, use <= to include the boundary
+                                if i == len(segment_boundaries) - 1:
+                                    if start_angle - epsilon <= angle <= end_angle + epsilon:
+                                        segment_idx = i
+                                        found_segment = True
+                                        break
+                                else:
+                                    if start_angle - epsilon <= angle < end_angle + epsilon:
+                                        segment_idx = i
+                                        found_segment = True
+                                        break
+                        
+                        # If no segment found (due to floating point precision), assign based on closest angle
+                        if not found_segment:
+                            # Find the segment with the smallest angle distance
+                            min_distance = float('inf')
+                            for i, (start_angle, end_angle) in enumerate(segment_boundaries):
+                                mid_angle = (start_angle + end_angle) / 2
+                                # Handle wraparound for mid angle calculation
+                                if end_angle > 2 * math.pi:
+                                    mid_angle = start_angle + ((end_angle - start_angle) / 2)
+                                    if mid_angle > 2 * math.pi:
+                                        mid_angle -= 2 * math.pi
+                                
+                                # Calculate angular distance (accounting for circular nature)
+                                angle_diff = abs(angle - mid_angle)
+                                if angle_diff > math.pi:
+                                    angle_diff = 2 * math.pi - angle_diff
+                                
+                                if angle_diff < min_distance:
+                                    min_distance = angle_diff
+                                    segment_idx = i
+                    
+                    # Add this exact character position to the appropriate segment
+                    char_x = center_x + x_offset  
+                    char_y = center_y + y_offset
+                    segment_points[segment_idx].add((char_x, char_y))
+        
+        # SECOND PASS: Fill any potential gaps by adding adjacent positions
+        # This ensures complete coverage by adding neighboring positions to existing points
+        additional_points = [set() for _ in range(len(labels))]
+        for segment_idx, points in enumerate(segment_points):
+            for (x, y) in points:
+                # Add neighboring positions to ensure no gaps
+                for dx in [-1, 0, 1]:
+                    for dy in [-1, 0, 1]:
+                        neighbor_x = x + dx
+                        neighbor_y = y + dy
+                        
+                        # Check if this neighbor is within the circular area
+                        adjusted_x = (neighbor_x - center_x) / aspect_ratio  
+                        adjusted_y = neighbor_y - center_y
+                        neighbor_distance = math.sqrt(adjusted_x * adjusted_x + adjusted_y * adjusted_y)
+                        
+                        if neighbor_distance <= radius * 1.1:  # Within pie area
+                            additional_points[segment_idx].add((neighbor_x, neighbor_y))
+        
+        # Merge additional points with main points
+        for segment_idx in range(len(labels)):
+            segment_points[segment_idx].update(additional_points[segment_idx])
+        
+        # Draw each segment using a different approach - draw filled shapes row by row
+        # This ensures complete filling without gaps
+        for segment_idx, (points, color) in enumerate(zip(segment_points, colors)):
+            if points:  # Only draw if segment has points
+                points_list = list(points)
+                
+                # Group points by y-coordinate to draw horizontal filled lines
+                y_groups = {}
+                for x, y in points_list:
+                    if y not in y_groups:
+                        y_groups[y] = []
+                    y_groups[y].append(x)
+                
+                # For each y-coordinate, draw a continuous horizontal line
+                for y_coord, x_coords in y_groups.items():
+                    if x_coords:
+                        x_coords.sort()  # Sort x coordinates
+                        x_min, x_max = min(x_coords), max(x_coords)
+                        
+                        # Create a continuous range of x coordinates to fill the gap
+                        if x_max > x_min:
+                            # Draw filled horizontal line from x_min to x_max
+                            fill_x_coords = []
+                            x_step = 0.5  # Smaller step for better coverage
+                            current_x = x_min
+                            while current_x <= x_max:
+                                fill_x_coords.append(current_x)
+                                current_x += x_step
+                            fill_y_coords = [y_coord] * len(fill_x_coords)
+                            self.draw(fill_x_coords, fill_y_coords, marker='sd', color=color)
+                        else:
+                            # Single point
+                            self.draw([x_min], [y_coord], marker='sd', color=color)
+        
+        # Reset cumulative_angle for label drawing
+        cumulative_angle = 0
+        for i, (label, value, percentage, color) in enumerate(zip(labels, values, percentages, colors)):
+            slice_angle = (value / total) * 2 * math.pi
+            
+            # Add value labels on the pie slice (only if show_values_on_slices is True)
+            if show_values_on_slices and (show_values or show_percentages):
+                # Calculate middle angle of the slice for label placement
+                middle_angle = cumulative_angle + slice_angle / 2
+                # Position label at 70% of radius for better visibility
+                label_radius = radius * 0.7
+                label_x = center_x + (label_radius * math.cos(middle_angle)) * aspect_ratio
+                label_y = center_y + label_radius * math.sin(middle_angle)
+                
+                # Build label text for the slice
+                slice_label = ""
+                if show_values and show_percentages:
+                    slice_label = f"{value}\n({percentage:.1f}%)"
+                elif show_values:
+                    slice_label = str(value)
+                elif show_percentages:
+                    slice_label = f"{percentage:.1f}%"
+                
+                # Draw the label on the slice
+                self.draw_text(slice_label, label_x, label_y, color='white', alignment='center')
+            
+            cumulative_angle += slice_angle
+        
+        # Extend the plot area to accommodate legend
+        max_text_length = max(len(f"{label}: {value} ({percentage:.1f}%)") 
+                              for label, value, percentage in zip(labels, values, percentages))
+        
+        # Set plot limits to include legend area (adjust x for aspect ratio)
+        x_radius = radius * aspect_ratio
+        self.set_xlim(-x_radius - 1, x_radius + max_text_length + 2)
+        self.set_ylim(-radius - 1, radius + 1)
+        
+        # Create legend positioned in the bottom right corner of the chart
+        legend_start_x = x_radius + 1.5
+        legend_start_y = -radius + len(labels) * 1.0 - 0.5
+        
+        for i, (label, value, percentage, color) in enumerate(zip(labels, values, percentages, colors)):
+            legend_x = legend_start_x
+            legend_y = legend_start_y - i * 1.2  # Space between legend items
+            
+            # Draw colored square for legend matching pie chart blocks
+            self.draw([legend_x], [legend_y], marker='sd', color=color)
+            
+            # Build legend text with colored block prefix
+            block_char = "█"  # Solid block character
+            legend_text = f"{block_char} {label}"
+            if show_values and show_percentages:
+                legend_text += f": {value} ({percentage:.1f}%)"
+            elif show_values:
+                legend_text += f": {value}"
+            elif show_percentages:
+                legend_text += f": {percentage:.1f}%"
+            
+            # Use draw_text for the legend with the same color as the segment
+            self.draw_text(legend_text, legend_x, legend_y, color=color)
+        
+        # Set title if provided
+        if title:
+            self.set_title(title)
+        
+        # Remove axis labels since pie charts don't need them
+        self.set_xlabel('')
+        self.set_ylabel('')
+
     def draw_heatmap(self, dataframe, color = None, style=None):
         color = self.default.cmatrix_color if color is None else self.check_color(color)
         style = self.default.cmatrix_style if style is None else self.check_style(style)

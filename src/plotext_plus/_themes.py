@@ -53,6 +53,7 @@ rgb_colors = {
     'term_black': (0, 0, 0),
     'term_white': (255, 255, 255),
     'term_gray': (128, 128, 128),
+    'dark_gray': (64, 64, 64),  # Dark gray for better readability
 }
 
 def create_chuk_term_themes():
@@ -148,7 +149,7 @@ def create_chuk_term_themes():
                rgb_colors['sol_blue'], rgb_colors['sol_magenta'], rgb_colors['sol_red']]
     sequence += [el for el in color_sequence if el not in sequence]
     themes['solarized_light'] = [rgb_colors['sol_base3'], rgb_colors['sol_base01'], 
-                                rgb_colors['sol_base00'], no_color, sequence]
+                                rgb_colors['dark_gray'], no_color, sequence]
     
     # Matrix theme (enhanced version)
     sequence = [(0, 255, 65), (0, 200, 50), (0, 150, 35), (0, 100, 20)]

@@ -85,7 +85,9 @@ Available tools:
 - line_plot: Create line plots
 - bar_chart: Create bar charts
 - matrix_plot: Create matrix/heatmap plots
-- quick_scatter/line/bar: Quick chart creation
+- image_plot: Display images as ASCII art
+- play_gif: Play animated GIFs
+- quick_scatter/line/bar/pie: Quick chart creation
 - theme management tools
 - utility functions
 
@@ -147,6 +149,29 @@ async def matrix_plot(
 
 Creates a matrix/heatmap plot from 2D data.
 
+#### image_plot
+
+```python
+async def image_plot(
+    image_path: str, 
+    title: Optional[str] = None, 
+    marker: Optional[str] = None, 
+    style: Optional[str] = None, 
+    fast: bool = False, 
+    grayscale: bool = False
+) -> str
+```
+
+Display an image in the terminal using ASCII art. Supports various image formats and styling options.
+
+#### play_gif
+
+```python
+async def play_gif(gif_path: str) -> str
+```
+
+Play a GIF animation in the terminal. The animation runs automatically without requiring additional show() calls.
+
 ### Chart Class Tools
 
 #### quick_scatter
@@ -187,6 +212,22 @@ async def quick_bar(
 ```
 
 Creates a quick bar chart using the chart classes API.
+
+#### quick_pie
+
+```python
+async def quick_pie(
+    labels: List[str], 
+    values: List[Union[int, float]], 
+    colors: Optional[List[str]] = None, 
+    title: Optional[str] = None, 
+    show_values: bool = True, 
+    show_percentages: bool = True,
+    show_values_on_slices: bool = False
+) -> str
+```
+
+Creates a quick pie chart using the chart classes API. Best for small numbers of categories (3-7).
 
 ### Theme Tools
 
@@ -277,12 +318,20 @@ The plotext_plus MCP server provides ready-to-use prompts via the MCP prompt API
 - **basic_scatter**: Simple scatter plot example
 - **basic_bar_chart**: Bar chart with sample data  
 - **line_plot_with_theme**: Line plot with theme application
+- **basic_pie_chart**: Simple pie chart example with market share data
 
 #### Advanced Plotting Prompts
 
 - **matrix_heatmap**: Correlation matrix visualization
 - **multi_step_workflow**: Complex multi-step analysis workflow
 - **professional_bar_chart**: Styled bar chart with banner mode
+- **pie_chart_styling**: Advanced pie chart with values on slices
+- **pie_chart_comparison**: Multiple pie charts for quarterly comparison
+- **pie_chart_best_practices**: Educational example for data grouping
+- **image_display**: Basic image plotting workflow
+- **gif_animation**: GIF playback example
+- **image_styling**: Advanced image rendering with custom markers
+- **multimedia_showcase**: Complete multimedia demonstration
 
 #### Theme and Styling Prompts
 
@@ -317,6 +366,39 @@ The server provides a configuration resource at `config://plotext` containing:
     "available_themes": dict,        # Theme information
     "library_version": "plotext_plus",
     "mcp_enabled": True
+}
+```
+
+### info://plotext
+
+The server also provides comprehensive tool information at `info://plotext` containing:
+
+```python
+{
+    "server_info": {
+        "name": "Plotext Plus MCP Server",
+        "description": "Model Context Protocol server for plotext_plus terminal plotting library",
+        "version": "1.0.0",
+        "capabilities": ["plotting", "theming", "multimedia", "charts"]
+    },
+    "plotting_tools": {
+        "scatter_plot": "Create scatter plots with x/y data points",
+        "line_plot": "Create line plots for time series and continuous data",
+        "bar_chart": "Create bar charts for categorical data", 
+        "matrix_plot": "Create heatmaps from 2D matrix data",
+        "image_plot": "Display images in terminal using ASCII art",
+        "play_gif": "Play animated GIFs in the terminal"
+    },
+    "quick_chart_tools": {
+        "quick_scatter": "Quickly create scatter charts with theming",
+        "quick_line": "Quickly create line charts with theming",
+        "quick_bar": "Quickly create bar charts with theming",
+        "quick_pie": "Quickly create pie charts with custom colors and options"
+    },
+    "usage_tips": {
+        "pie_charts": "Best for 3-7 categories, use full terminal dimensions",
+        "images": "Use fast=True for better performance with large images"
+    }
 }
 ```
 
@@ -836,6 +918,12 @@ Make a bar chart showing sales data: categories=["Q1","Q2","Q3","Q4"] and values
 Plot a line chart of temperature data over time: x=[1,2,3,4,5,6,7] and y=[20,22,25,28,26,24,21] using the "dark" theme with title "Weekly Temperature".
 ```
 
+**Create a Simple Pie Chart**
+
+```text
+Create a pie chart showing mobile OS market share: categories=['iOS', 'Android', 'Windows', 'Other'], values=[35, 45, 15, 5], colors=['blue', 'green', 'orange', 'gray'] with title 'Mobile OS Market Share'.
+```
+
 ### Advanced Plotting Examples
 
 **Matrix Heatmap Visualization**
@@ -862,6 +950,32 @@ Create a professional-looking bar chart with:
 - Enable banner mode with title "Sales Report" and subtitle "Q3 2024"
 - Use a custom color scheme
 - Set appropriate plot dimensions
+```
+
+**Pie Chart with Advanced Features**
+
+```text
+Create a budget pie chart with show_values_on_slices=True: categories=['Housing', 'Food', 'Transport', 'Entertainment'], values=[1200, 400, 300, 200], custom colors, and title 'Monthly Budget Breakdown'.
+```
+
+**Display Image as ASCII Art**
+
+```text
+Display an image in the terminal:
+1. Download a test image using utilities.download()
+2. Display it using image_plot with title 'ASCII Art Demo'
+3. Try both normal and grayscale versions
+4. Clean up the file afterward
+```
+
+**Play Animated GIF**
+
+```text
+Play a GIF animation in terminal:
+1. Download a test GIF file
+2. Play the animation using play_gif
+3. Clean up the file afterward
+Note: The GIF will play automatically
 ```
 
 ### Theme and Styling Examples

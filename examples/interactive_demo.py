@@ -22,20 +22,8 @@ def get_optimal_chart_height():
     
     terminal_width, terminal_height = ut.terminal_size()
     
-    # Calculate all the extra lines that appear before/after charts
-    welcome_message_lines = 2   # Success + info message  
-    separator_lines = 2         # Separator line + blank line
-    banner_border_lines = 4     # Banner top border + title line + bottom border + spacing
-    menu_info_lines = 2         # Info symbol + menu title
-    menu_options = 12           # 11 options + exit
-    menu_prompt_lines = 2       # Prompt + input line
-    
-    total_overhead_lines = (welcome_message_lines + separator_lines + banner_border_lines +
-                           menu_info_lines + menu_options + menu_prompt_lines)
-    
-    # Calculate available height for charts (the actual chart content area)
-    available_height = terminal_height - total_overhead_lines
-    optimal_chart_height = max(available_height, 3)  # At least 3 for minimal chart
+    # Use terminal height minus 5 characters
+    optimal_chart_height = max(terminal_height - 5, 3)  # At least 3 for minimal chart
     
     return optimal_chart_height
 
@@ -45,9 +33,8 @@ def get_optimal_grid_height():
     
     terminal_width, terminal_height = ut.terminal_size()
     
-    # For grid layout, we only need space for a compact menu at bottom
-    menu_lines = 4  # Compact menu display for grid (title + option + prompt + buffer)
-    available_height = terminal_height - menu_lines
+    # Use terminal height minus 5 characters
+    available_height = terminal_height - 5
     
     return max(available_height, 15)
 
@@ -57,8 +44,8 @@ def get_full_terminal_height():
     
     terminal_width, terminal_height = ut.terminal_size()
     
-    # Use terminal height minus 3 lines, with minimum of 5
-    return max(terminal_height - 3, 5)
+    # Use terminal height minus 5 characters
+    return max(terminal_height - 5, 5)
 
 def welcome_screen():
     """Display welcome screen with banner"""
@@ -126,6 +113,11 @@ def demo_banner_styles(use_full_height=False):
     
     plt.log_success("✓ Gaming theme demonstrated")
     time.sleep(2)
+    
+    # Add press Enter prompt for individual demo runs (not for "Run all demos")
+    if not use_full_height:
+        plt.log_info("📋 Press [Enter] to return to main menu...")
+        input()
 
 def demo_interactive_charts(use_full_height=False):
     """Create interactive-style charts with real-time feel"""
@@ -153,6 +145,11 @@ def demo_interactive_charts(use_full_height=False):
             time.sleep(1.5)
     
     plt.log_success("✓ Real-time simulation complete")
+    
+    # Add press Enter prompt for individual demo runs (not for "Run all demos")
+    if not use_full_height:
+        plt.log_info("📋 Press [Enter] to return to main menu...")
+        input()
 
 def demo_four_panel_dashboard(use_full_height=False):
     """Create a 2x2 grid dashboard with four panels displayed side-by-side"""
@@ -216,6 +213,11 @@ def demo_four_panel_dashboard(use_full_height=False):
     core_plt.show()
     
     plt.log_success("✓ Four-panel dashboard complete - 2x2 grid layout")
+    
+    # Add press Enter prompt for individual demo runs (not for "Run all demos")
+    if not use_full_height:
+        plt.log_info("📋 Press [Enter] to return to main menu...")
+        input()
 
 def demo_multi_chart_dashboard(use_full_height=False):
     """Create a multi-chart dashboard layout"""
@@ -258,6 +260,11 @@ def demo_multi_chart_dashboard(use_full_height=False):
     chart3.show()
     
     plt.log_success("✓ Multi-chart dashboard complete")
+    
+    # Add press Enter prompt for individual demo runs (not for "Run all demos")
+    if not use_full_height:
+        plt.log_info("📋 Press [Enter] to return to main menu...")
+        input()
 
 def demo_mathematical_visualizations(use_full_height=False):
     """Show mathematical function plotting capabilities"""
@@ -296,6 +303,90 @@ def demo_mathematical_visualizations(use_full_height=False):
     chart2.show()
     
     plt.log_success("✓ Mathematical visualizations complete")
+    
+    # Add press Enter prompt for individual demo runs (not for "Run all demos")
+    if not use_full_height:
+        plt.log_info("📋 Press [Enter] to return to main menu...")
+        input()
+
+def demo_pie_charts(use_full_height=False):
+    """Demonstrate different pie chart styles and configurations"""
+    plt.log_info("🥧 Pie Chart Demonstrations...")
+    
+    # Get full terminal dimensions for pie charts
+    from plotext_plus import _utility as ut
+    terminal_width, terminal_height = ut.terminal_size()
+    
+    # Simple pie chart using function API
+    plt.clear_terminal()
+    plt.log_info("📊 Creating basic pie chart...")
+    
+    labels = ["Product A", "Product B", "Product C", "Product D"]
+    values = [35, 25, 20, 20]
+    colors = ["red", "blue", "green", "orange"]
+    
+    # Use banner-aware width that accounts for border characters
+    plot_width = ut.terminal_width() or terminal_width  # Banner-adjusted width
+    plt.plotsize(plot_width, terminal_height - 5)  # Use banner-aware dimensions
+    plt.pie(labels, values, colors=colors, title="Market Share Distribution")
+    plt.show()
+    time.sleep(2)
+    
+    # Pie chart with percentages only
+    plt.clear_terminal()  
+    plt.log_info("📊 Creating pie chart with percentages...")
+    
+    budget_labels = ["Marketing", "Development", "Operations", "Sales", "Support"]
+    budget_values = [30, 40, 15, 10, 5]
+    budget_colors = ["magenta", "cyan", "orange", "green", "red"]
+    
+    # Use banner-aware width that accounts for border characters
+    plot_width = ut.terminal_width() or terminal_width  # Banner-adjusted width
+    plt.plotsize(plot_width, terminal_height - 5)  # Use banner-aware dimensions
+    plt.pie(budget_labels, budget_values, colors=budget_colors, 
+           show_values=False, show_percentages=True, 
+           title="Annual Budget Distribution")
+    plt.show()
+    time.sleep(2)
+    
+    # Pie chart using Chart class API
+    plt.clear_terminal()
+    plt.log_info("📊 Creating pie chart with Chart class...")
+    
+    survey_labels = ["Excellent", "Good", "Fair", "Poor"]
+    survey_values = [45, 35, 15, 5]
+    
+    chart = plt.Chart(use_banners=True, banner_title="📊 Customer Satisfaction Survey")
+    chart._config['height'] = get_full_terminal_height() if use_full_height else terminal_height - 5
+    chart.pie(survey_labels, survey_values, 
+             colors=["green", "green", "orange", "red"],
+             show_values=True, show_percentages=True)
+    chart.title("Customer Satisfaction Results")
+    chart.show()
+    time.sleep(2)
+    
+    # Quick pie chart demo
+    plt.clear_terminal()
+    plt.log_info("📊 Creating quick pie chart...")
+    
+    os_labels = ["Windows", "macOS", "Linux", "Other"]
+    os_values = [60, 25, 12, 3]
+    
+    # Use banner-aware width that accounts for border characters
+    plot_width = ut.terminal_width() or terminal_width  # Banner-adjusted width
+    plt.plotsize(plot_width, terminal_height - 5)  # Use banner-aware dimensions
+    plt.quick_pie(os_labels, os_values, 
+                 colors=["blue", "white", "orange", "gray"],
+                 title="Operating System Usage",
+                 use_banners=True, banner_title="💻 OS Statistics")
+    
+    time.sleep(2)
+    plt.log_success("✓ Pie chart demonstrations complete")
+    
+    # Add press Enter prompt for individual demo runs (not for "Run all demos")
+    if not use_full_height:
+        plt.log_info("📋 Press [Enter] to return to main menu...")
+        input()
 
 def demo_data_analysis_workflow(use_full_height=False):
     """Simulate a complete data analysis workflow"""
@@ -367,6 +458,11 @@ def demo_data_analysis_workflow(use_full_height=False):
     
     plt.log_success("✓ Statistical analysis complete")
     plt.log_info(f"📊 Mean: {mean_val:.2f}, Std Dev: {std_val:.2f}")
+    
+    # Add press Enter prompt for individual demo runs (not for "Run all demos")
+    if not use_full_height:
+        plt.log_info("📋 Press [Enter] to return to main menu...")
+        input()
 
 def demo_theme_showcase(use_full_height=False):
     """Complete Theme Comparison - Comprehensive demonstration of all available themes"""
@@ -468,6 +564,11 @@ def demo_theme_showcase(use_full_height=False):
     
     plt.log_success("🎉 Theme showcase completed!")
     plt.log_info("✨ All themes displayed the same data for easy comparison")
+    
+    # Add press Enter prompt for individual demo runs (not for "Run all demos")
+    if not use_full_height:
+        plt.log_info("📋 Press [Enter] to return to main menu...")
+        input()
 
 def demo_image_plotting(use_full_height=False):
     """Demonstrate image plotting capabilities"""
@@ -533,6 +634,11 @@ def demo_image_plotting(use_full_height=False):
         
         plt.banner_mode(False)  # Reset banner mode
         plt.log_success("✓ Image plotting demo complete")
+        
+        # Add press Enter prompt for individual demo runs (not for "Run all demos")
+        if not use_full_height:
+            plt.log_info("📋 Press [Enter] to return to main menu...")
+            input()
         
     except Exception as e:
         plt.log_error(f"Image demo failed: {str(e)}")
@@ -618,6 +724,11 @@ def demo_video_functionality(use_full_height=False):
             plt.play_video(video_path)
             plt.log_success("✓ Video playback complete!")
             plt.log_success("✓ Video functionality demo complete")
+            
+            # Add press Enter prompt for individual demo runs (not for "Run all demos")
+            if not use_full_height:
+                plt.log_info("📋 Press [Enter] to return to main menu...")
+                input()
         else:
             raise Exception("Local video file not found or is empty")
         
@@ -690,6 +801,11 @@ def demo_multimedia_showcase(use_full_height=False):
         plt.banner_mode(False)
         plt.log_success("✓ Multimedia showcase complete")
         
+        # Add press Enter prompt for individual demo runs (not for "Run all demos")
+        if not use_full_height:
+            plt.log_info("📋 Press [Enter] to return to main menu...")
+            input()
+        
     except Exception as e:
         plt.log_error(f"Multimedia showcase failed: {str(e)}")
         plt.banner_mode(False)
@@ -708,16 +824,17 @@ def interactive_menu():
         print("3. 🖥️  Multi-Chart Dashboard")
         print("4. 📊 Four-Panel Dashboard (fits terminal)")
         print("5. 📐 Mathematical Visualizations")
-        print("6. 🔍 Data Analysis Workflow")
-        print("7. 🎨 Theme Showcase")
-        print("8. 🖼️ Image Plotting Demo")
-        print("9. 🎬 Video Functionality Demo")
-        print("10. 🎭 Multimedia Showcase")
-        print("11. 🎯 Run All Demos")
+        print("6. 🥧 Pie Chart Demonstrations")
+        print("7. 🔍 Data Analysis Workflow")
+        print("8. 🎨 Theme Showcase")
+        print("9. 🖼️ Image Plotting Demo")
+        print("10. 🎬 Video Functionality Demo")
+        print("11. 🎭 Multimedia Showcase")
+        print("12. 🎯 Run All Demos")
         print("0. Exit")
         
         try:
-            choice = input("\nEnter your choice (0-11): ").strip()
+            choice = input("\nEnter your choice (0-12): ").strip()
             
             if choice == '0':
                 plt.log_success("👋 Thanks for exploring Plotext!")
@@ -733,16 +850,18 @@ def interactive_menu():
             elif choice == '5':
                 demo_mathematical_visualizations()
             elif choice == '6':
-                demo_data_analysis_workflow(use_full_height=True)
+                demo_pie_charts()
             elif choice == '7':
-                demo_theme_showcase()
+                demo_data_analysis_workflow(use_full_height=True)
             elif choice == '8':
-                demo_image_plotting()
+                demo_theme_showcase()
             elif choice == '9':
-                demo_video_functionality()
+                demo_image_plotting()
             elif choice == '10':
-                demo_multimedia_showcase()
+                demo_video_functionality()
             elif choice == '11':
+                demo_multimedia_showcase()
+            elif choice == '12':
                 import time
                 from chuk_term import ui
                 
@@ -752,52 +871,57 @@ def interactive_menu():
                 
                 # Run all demos with screen clearing before each one, using full terminal height
                 ui.clear_screen()
-                plt.log_info("🎭 Starting Demo 1/10: Banner Styles & Themes")
+                plt.log_info("🎭 Starting Demo 1/11: Banner Styles & Themes")
                 demo_banner_styles(use_full_height=True)
                 time.sleep(3)
                 
                 ui.clear_screen()
-                plt.log_info("📊 Starting Demo 2/10: Interactive-Style Charts")
+                plt.log_info("📊 Starting Demo 2/11: Interactive-Style Charts")
                 demo_interactive_charts(use_full_height=True)
                 time.sleep(3)
                 
                 ui.clear_screen()
-                plt.log_info("🖥️  Starting Demo 3/10: Multi-Chart Dashboard")
+                plt.log_info("🖥️  Starting Demo 3/11: Multi-Chart Dashboard")
                 demo_multi_chart_dashboard(use_full_height=True)
                 time.sleep(3)
                 
                 ui.clear_screen()
-                plt.log_info("📊 Starting Demo 4/10: Four-Panel Dashboard")
+                plt.log_info("📊 Starting Demo 4/11: Four-Panel Dashboard")
                 demo_four_panel_dashboard(use_full_height=True)
                 time.sleep(3)
                 
                 ui.clear_screen()
-                plt.log_info("📐 Starting Demo 5/10: Mathematical Visualizations")
+                plt.log_info("📐 Starting Demo 5/11: Mathematical Visualizations")
                 demo_mathematical_visualizations(use_full_height=True)
                 time.sleep(3)
                 
                 ui.clear_screen()
-                plt.log_info("🔍 Starting Demo 6/10: Data Analysis Workflow")
+                plt.log_info("🥧 Starting Demo 6/11: Pie Chart Demonstrations")
+                demo_pie_charts(use_full_height=True)
+                time.sleep(3)
+                
+                ui.clear_screen()
+                plt.log_info("🔍 Starting Demo 7/11: Data Analysis Workflow")
                 demo_data_analysis_workflow(use_full_height=True)
                 time.sleep(3)
                 
                 ui.clear_screen()
-                plt.log_info("🎨 Starting Demo 7/10: Theme Showcase")
+                plt.log_info("🎨 Starting Demo 8/11: Theme Showcase")
                 demo_theme_showcase(use_full_height=True)
                 time.sleep(2)
                 
                 ui.clear_screen()
-                plt.log_info("🖼️ Starting Demo 8/10: Image Plotting")
+                plt.log_info("🖼️ Starting Demo 9/11: Image Plotting")
                 demo_image_plotting(use_full_height=True)
                 time.sleep(2)
                 
                 ui.clear_screen()
-                plt.log_info("🎬 Starting Demo 9/10: Video Functionality")
+                plt.log_info("🎬 Starting Demo 10/11: Video Functionality")
                 demo_video_functionality(use_full_height=True)
                 time.sleep(2)
                 
                 ui.clear_screen()
-                plt.log_info("🎭 Starting Demo 10/10: Multimedia Showcase")
+                plt.log_info("🎭 Starting Demo 11/11: Multimedia Showcase")
                 demo_multimedia_showcase(use_full_height=True)
                 time.sleep(2)
                 
