@@ -1,6 +1,6 @@
 [project]
 name = "plotext_plus"
-version = "1.0.0"
+version = "1.0.3"
 description = "Modern terminal plotting library with enhanced visual features, themes, and AI integration"
 authors = [
     {name = "Chris Mitchell", email = "chris@ccmitchellusa.com"}
@@ -9,6 +9,7 @@ license = "MIT"
 requires-python = ">=3.11"
 dependencies = [
     "chuk-term>=0.1.0",
+    "shtab>=1.7.2",
 ]
 readme = "README.md"
 keywords = ["plotting", "terminal", "visualization", "charts", "graphs", "cli", "mcp", "ai"]
@@ -68,4 +69,9 @@ packages = ["src/plotext_plus"]
 
 [tool.hatch.build.targets.wheel.sources]
 "src" = ""
+
+[dependency-groups]
+dev = [
+    "twine>=6.2.0",
+]
 

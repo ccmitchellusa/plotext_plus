@@ -1,0 +1,45 @@
+# Include the license file
+include LICENSE
+
+# Include documentation files
+include README.md
+include CLAUDE.md
+recursive-include docs *
+
+# Include example files
+recursive-include examples *.py
+
+# Include test files
+recursive-include tests *.py
+
+# Include data files
+recursive-include data *
+
+# Include configuration files
+include pyproject.toml
+include uv.lock
+include .python-version
+
+# Include git-related files for development
+include .gitignore
+
+# Exclude unnecessary files
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude *.so
+global-exclude .DS_Store
+global-exclude *.egg-info
+
+# Exclude build artifacts
+exclude dist/*
+exclude build/*
+
+# Exclude IDE and editor files
+global-exclude .vscode
+global-exclude .idea
+global-exclude *.swp
+global-exclude *.swo
+global-exclude *~
+
+# Exclude temporary files
+exclude test_server_config.json

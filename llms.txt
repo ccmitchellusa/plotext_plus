@@ -47,7 +47,7 @@ plotext/
 
 ### Traditional API (Backward Compatible)
 ```python
-import plotext as plt
+import plotext_plus as plt
 
 x = [1, 2, 3, 4, 5]
 y = [1, 4, 9, 16, 25]
@@ -59,7 +59,7 @@ plt.show()
 
 ### Modern Object-Oriented API
 ```python
-import plotext as plt
+import plotext_plus as plt
 
 chart = (plt.Chart(use_banners=True, banner_title="📊 Data Analysis")
          .scatter(x, y, color='blue', label='Data Points')
@@ -71,7 +71,7 @@ chart = (plt.Chart(use_banners=True, banner_title="📊 Data Analysis")
 
 ### Quick Functions
 ```python
-import plotext as plt
+import plotext_plus as plt
 
 plt.quick_scatter(x, y, title="Quick Plot", use_banners=True)
 plt.quick_line(x, y, title="Quick Line", banner_title="📈 Trends")
