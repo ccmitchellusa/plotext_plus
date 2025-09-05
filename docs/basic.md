@@ -254,6 +254,89 @@ python3 -c "import plotext_plus as plt; labels = ['Python', 'JS', 'Go', 'Rust'];
 - `show_values_on_slices`: Display values directly on pie segments (default: False)
 - `title`: Chart title
 
+### Single-Value Pie Charts
+
+Single-value pie charts are perfect for progress indicators, completion rates, and other single-metric visualizations. They show a colored segment for the data value and handle the remainder specially.
+
+![pie single-value](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/multiple-single-value.png)
+
+```python
+import plotext_plus as plt
+
+# Basic single-value pie chart (remainder as spaces)
+plt.clear_figure()
+plt.plotsize(50, 12)
+plt.pie(["Progress", "Remaining"], [75, 25], colors=["green", "default"], 
+       show_values=False, show_percentages=True,
+       title="Project Progress: 75%")
+plt.show()
+
+# Single-value pie with colored remainder
+plt.clear_figure()
+plt.pie(["Complete", "Remaining"], [60, 40], colors=["blue", "default"], 
+       remaining_color="gray",  # Colors the remaining slice
+       show_values=False, show_percentages=True,
+       title="Task Completion: 60%")
+plt.show()
+```
+
+**Key Features**:
+
+- **Smart legend filtering**: Only shows the data value, hides "Remaining" entry by default
+- **Remaining area options**: 
+  - Without `remaining_color`: Remaining area stays as blank spaces
+  - With `remaining_color`: Remaining area gets colored and appears in legend
+- **Perfect for dashboards**: Progress bars, completion meters, utilization rates
+
+### Doughnut Charts
+
+Doughnut charts are pie charts with a hollow center, providing a modern aesthetic and emphasizing the ring structure of the data. The inner radius is automatically set to 1/3 of the outer radius.
+
+![doughnut](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/doughnut-chart.png)
+
+![doughnut single-values](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/doughnut-single-value-comparison.png)
+
+```python
+import plotext_plus as plt
+
+# Basic doughnut chart
+labels = ["Sales", "Marketing", "Support", "Development"]
+values = [40, 25, 15, 20]
+colors = ["blue", "orange", "green", "red"]
+
+plt.clear_figure()
+plt.plotsize(60, 15)
+plt.pie(labels, values, colors=colors, donut=True,
+       show_values=False, show_percentages=True,
+       title="Department Budget - Doughnut Chart")
+plt.show()
+
+# Single-value doughnut for progress indicator
+plt.clear_figure()
+plt.pie(["Completed", "Remaining"], [85, 15], colors=["cyan", "default"], 
+       donut=True, show_values=False, show_percentages=True,
+       title="Project Progress - 85% Complete")
+plt.show()
+
+# Quick doughnut using convenience function
+plt.quick_donut(["Task A", "Task B", "Task C"], [30, 45, 25],
+               colors=["purple", "yellow", "green"],
+               title="Task Distribution")
+```
+
+**Key Features**:
+
+- **Hollow center**: Inner circle remains completely empty (no block characters)
+- **Modern appearance**: Ring structure emphasizes proportional relationships
+- **All pie chart features**: Supports single-value, remaining_color, legends, etc.
+- **Convenience function**: `plt.quick_donut()` for rapid creation
+- **Perfect for**: Progress indicators, resource allocation, modern dashboards
+
+**Additional Parameters for Pie and Doughnut Charts**:
+
+- `donut`: Set to `True` for doughnut chart (hollow center)
+- `remaining_color`: Color for remaining slice in single-value charts (optional)
+
 More documentation can be accessed with `doc.pie()`.
 
 [Main Guide](https://github.com/ccmitchellusa/plotext_plus#guide), [Basic Plots](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#basic-plots)

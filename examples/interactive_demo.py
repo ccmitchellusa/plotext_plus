@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 import plotext_plus as plt
 # Use the clean public API instead of private modules
 from plotext_plus import utilities as ut
+from chuk_term import ui
 import math
 import random
 import time
@@ -47,26 +48,21 @@ def get_full_terminal_height():
     # Use terminal height minus 5 characters
     return max(terminal_height - 5, 5)
 
+def banner_text():
+    print("⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛")
+    print("⬛🟥🟥🟥⬛⬛🟥⬛⬛⬛⬛⬛🟥⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛🟥⬛⬛⬛⬛⬛⬛⬛")
+    print("⬛🟧⬛⬛🟧⬛🟧⬛⬛🟧⬛⬛🟧⬛⬛⬛🟧🟧🟧⬛🟧⬛🟧⬛🟧⬛⬛⬛⬛🟧⬛⬛")
+    print("⬛🟨🟨🟨⬛⬛🟨⬛🟨⬛🟨⬛🟨🟨🟨⬛🟨⬛🟨⬛⬛🟨⬛⬛🟨🟨🟨⬛🟨🟨🟨⬛")
+    print("⬛🟩⬛⬛⬛⬛🟩⬛🟩⬛🟩⬛🟩⬛⬛⬛🟩🟩⬛⬛⬛🟩⬛⬛🟩⬛⬛⬛⬛🟩⬛⬛")
+    print("⬛🟦⬛⬛⬛⬛🟦⬛⬛🟦⬛⬛⬛🟦🟦⬛🟦🟦🟦⬛🟦⬛🟦⬛⬛🟦🟦⬛⬛⬛⬛⬛")
+    print("⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛")
+
 def welcome_screen():
     """Display welcome screen with banner"""
+    ui.clear_screen()
+    banner_text()
     plt.log_success("🎉 Welcome to Plotext Interactive Demo!")
-    plt.log_info("This demo showcases the new chuk-term integration features")
-    print("\n" + "="*60)
     
-    # Create a welcome chart
-    x = list(range(15))
-    y = [5 + 3*math.sin(i/2) + random.uniform(-0.5, 0.5) for i in x]
-    
-    chart = plt.Chart(use_banners=True, banner_title="🎨 Welcome to Enhanced Plotext")
-    chart._config['height'] = get_optimal_chart_height()
-    chart.line(x, y, color='cyan', label='Demo Signal')
-    chart.title("Interactive Demo - Enhanced Terminal Plotting")
-    chart.xlabel("Time Steps")
-    chart.ylabel("Amplitude")
-    chart.show()
-    
-    print("="*60 + "\n")
-
 def demo_banner_styles(use_full_height=False):
     """Demonstrate different banner styles and themes"""
     plt.log_info("🎭 Demonstrating Banner Styles and Themes...")
@@ -310,8 +306,8 @@ def demo_mathematical_visualizations(use_full_height=False):
         input()
 
 def demo_pie_charts(use_full_height=False):
-    """Demonstrate different pie chart styles and configurations"""
-    plt.log_info("🥧 Pie Chart Demonstrations...")
+    """Demonstrate different pie and doughnut chart styles and configurations"""
+    plt.log_info("🥧 Pie & Doughnut Chart Demonstrations...")
     
     # Get full terminal dimensions for pie charts
     from plotext_plus import _utility as ut
@@ -381,7 +377,81 @@ def demo_pie_charts(use_full_height=False):
                  use_banners=True, banner_title="💻 OS Statistics")
     
     time.sleep(2)
-    plt.log_success("✓ Pie chart demonstrations complete")
+    
+    # Single-value doughnut progress indicator
+    plt.clear_terminal()
+    plt.log_info("📊 Creating single-value doughnut progress indicator...")
+    
+    # Use banner-aware width that accounts for border characters  
+    plot_width = ut.terminal_width() or terminal_width
+    plt.plotsize(plot_width, terminal_height - 5)
+    
+    plt.pie(['Progress', 'Remaining'], [75, 25], 
+           colors=['cyan', 'default'], donut=True,
+           show_values=False, show_percentages=True,
+           title='Project Progress: 75% Complete')
+    plt.show()
+    
+    time.sleep(3)
+    plt.log_success("✓ Single-value doughnut progress indicator complete")
+    plt.log_info("📋 Shows progress as solid ring with hollow circular center")
+    
+    time.sleep(2)
+    
+    # Doughnut chart demo
+    plt.clear_terminal()
+    plt.log_info("🍩 Creating doughnut chart demonstrations...")
+    
+    # Basic doughnut chart
+    plot_width = ut.terminal_width() or terminal_width
+    plt.plotsize(plot_width, terminal_height - 5)
+    
+    sales_labels = ["Online", "In-Store", "Mobile", "Phone"]
+    sales_values = [45, 30, 20, 5]
+    sales_colors = ["blue", "orange", "green", "purple"]
+    
+    plt.pie(sales_labels, sales_values, colors=sales_colors, donut=True,
+           show_values=False, show_percentages=True,
+           title="Sales Channel Distribution - Doughnut Chart")
+    plt.show()
+    time.sleep(2)
+    
+    # Single-value doughnut for progress indicator
+    plt.clear_terminal()
+    plt.log_info("📊 Creating single-value doughnut progress indicator...")
+    
+    plt.plotsize(plot_width, terminal_height - 5)
+    plt.pie(["Completed", "Remaining"], [85, 15], colors=["cyan", "default"], 
+           donut=True, show_values=False, show_percentages=True,
+           title="Project Progress - 85% Complete")
+    plt.show()
+    time.sleep(2)
+    
+    plt.log_success("✓ Doughnut chart demonstrations complete")
+    time.sleep(2)
+    
+    # Doughnut with remaining color demo
+    plt.clear_terminal()
+    plt.log_info("🎨 Creating doughnut with remaining color demo...")
+    
+    # Single full-screen doughnut chart
+    plt.clear_figure()
+    plot_width = ut.terminal_width() or terminal_width  # Banner-adjusted width
+    plt.plotsize(plot_width, terminal_height - 5)  # Use banner-aware dimensions
+    
+    plt.pie(['Complete', 'Remaining'], [60, 40],
+           colors=['green', 'default'], donut=True,
+           remaining_color='gray',
+           show_values=False, show_percentages=True,
+           title='Task: 60% Complete')
+    plt.show()
+    time.sleep(3)
+    
+    plt.log_success("✓ Doughnut with remaining color demo complete")
+    plt.log_info("📋 Remaining slice colored gray instead of blank spaces")
+    
+    time.sleep(2)
+    plt.log_success("✓ Pie & Doughnut chart demonstrations complete")
     
     # Add press Enter prompt for individual demo runs (not for "Run all demos")
     if not use_full_height:
@@ -816,6 +886,7 @@ def demo_multimedia_showcase(use_full_height=False):
 
 def interactive_menu():
     """Main interactive menu"""
+    from chuk_term import ui
     while True:
         plt.log_info("\n🎮 Interactive Demo Menu")
         print("\nChoose a demonstration:")
@@ -824,7 +895,7 @@ def interactive_menu():
         print("3. 🖥️  Multi-Chart Dashboard")
         print("4. 📊 Four-Panel Dashboard (fits terminal)")
         print("5. 📐 Mathematical Visualizations")
-        print("6. 🥧 Pie Chart Demonstrations")
+        print("6. 🥧 Pie & Doughnut Chart Demonstrations")
         print("7. 🔍 Data Analysis Workflow")
         print("8. 🎨 Theme Showcase")
         print("9. 🖼️ Image Plotting Demo")
@@ -841,26 +912,37 @@ def interactive_menu():
                 break
             elif choice == '1':
                 demo_banner_styles()
+                ui.clear_screen()
             elif choice == '2':
                 demo_interactive_charts()
+                ui.clear_screen()
             elif choice == '3':
                 demo_multi_chart_dashboard()
+                ui.clear_screen()
             elif choice == '4':
                 demo_four_panel_dashboard()
+                ui.clear_screen()
             elif choice == '5':
                 demo_mathematical_visualizations()
+                ui.clear_screen()
             elif choice == '6':
                 demo_pie_charts()
+                ui.clear_screen()
             elif choice == '7':
                 demo_data_analysis_workflow(use_full_height=True)
+                ui.clear_screen()
             elif choice == '8':
                 demo_theme_showcase()
+                ui.clear_screen()
             elif choice == '9':
                 demo_image_plotting()
+                ui.clear_screen()
             elif choice == '10':
                 demo_video_functionality()
+                ui.clear_screen()
             elif choice == '11':
                 demo_multimedia_showcase()
+                ui.clear_screen()
             elif choice == '12':
                 import time
                 from chuk_term import ui
@@ -896,7 +978,7 @@ def interactive_menu():
                 time.sleep(3)
                 
                 ui.clear_screen()
-                plt.log_info("🥧 Starting Demo 6/11: Pie Chart Demonstrations")
+                plt.log_info("🥧 Starting Demo 6/11: Pie & Doughnut Chart Demonstrations")
                 demo_pie_charts(use_full_height=True)
                 time.sleep(3)
                 
@@ -929,6 +1011,7 @@ def interactive_menu():
                 plt.log_success("🎉 All demonstrations complete!")
                 plt.log_info("📋 Press Enter to return to the main menu...")
                 input()
+                ui.clear_screen()
             else:
                 plt.log_warning("⚠️ Invalid choice. Please select 0-11.")
                 

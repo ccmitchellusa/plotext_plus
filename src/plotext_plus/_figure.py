@@ -277,8 +277,8 @@ class _figure_class():
     def matrix_plot(self, matrix, marker = None, style = None, fast = False):
         self.monitor.draw_matrix(matrix, marker = marker, style = style, fast = fast) if self._no_plots else [[self._get_subplot(row, col).matrix_plot(matrix, marker = marker, style = style, fast = fast) for col in self._Cols] for row in self._Rows]
 
-    def pie(self, labels, values, colors = None, radius = None, show_values = True, show_percentages = True, title = None, show_values_on_slices = False):
-        self.monitor.draw_pie(labels, values, colors = colors, radius = radius, show_values = show_values, show_percentages = show_percentages, title = title, show_values_on_slices = show_values_on_slices) if self._no_plots else [[self._get_subplot(row, col).pie(labels, values, colors = colors, radius = radius, show_values = show_values, show_percentages = show_percentages, title = title, show_values_on_slices = show_values_on_slices) for col in self._Cols] for row in self._Rows]
+    def pie(self, labels, values, colors = None, radius = None, show_values = True, show_percentages = True, title = None, show_values_on_slices = False, donut = False, remaining_color = None):
+        self.monitor.draw_pie(labels, values, colors = colors, radius = radius, show_values = show_values, show_percentages = show_percentages, title = title, show_values_on_slices = show_values_on_slices, donut = donut, remaining_color = remaining_color) if self._no_plots else [[self._get_subplot(row, col).pie(labels, values, colors = colors, radius = radius, show_values = show_values, show_percentages = show_percentages, title = title, show_values_on_slices = show_values_on_slices, donut = donut, remaining_color = remaining_color) for col in self._Cols] for row in self._Rows]
 
     def heatmap(self, dataframe, color = None, style = None):
         self.monitor.draw_heatmap(dataframe, color = color, style = style) if self._no_plots else [[self._get_subplot(row, col).heatmap(dataframe, color = color, style = style) for col in self._Cols] for row in self._Rows]

@@ -84,7 +84,7 @@ class Chart:
         })
         return self
     
-    def pie(self, labels, values, colors=None, radius=None, show_values=True, show_percentages=True, show_values_on_slices=False):
+    def pie(self, labels, values, colors=None, radius=None, show_values=True, show_percentages=True, show_values_on_slices=False, donut=False, remaining_color=None):
         """Add pie chart data"""
         self._data.append({
             'type': 'pie',
@@ -94,7 +94,9 @@ class Chart:
             'radius': radius,
             'show_values': show_values,
             'show_percentages': show_percentages,
-            'show_values_on_slices': show_values_on_slices
+            'show_values_on_slices': show_values_on_slices,
+            'donut': donut,
+            'remaining_color': remaining_color
         })
         return self
     
@@ -194,7 +196,9 @@ class Chart:
                     radius=data_item['radius'],
                     show_values=data_item['show_values'],
                     show_percentages=data_item['show_percentages'],
-                    show_values_on_slices=data_item['show_values_on_slices']
+                    show_values_on_slices=data_item['show_values_on_slices'],
+                    donut=data_item.get('donut', False),
+                    remaining_color=data_item.get('remaining_color', None)
                 )
             elif data_item['type'] == 'histogram':
                 _core.hist(data_item['data'], bins=data_item['bins'], color=data_item['color'])
@@ -789,14 +793,22 @@ class PlotextAPI:
     
     @staticmethod 
     def quick_pie(labels, values, colors=None, title=None, use_banners=False, banner_title=None, 
-                  show_values=True, show_percentages=True, show_values_on_slices=False):
+                  show_values=True, show_percentages=True, show_values_on_slices=False, donut=False, remaining_color=None):
         """Quickly create and display a pie chart"""
         chart = Chart(use_banners, banner_title)
-        chart.pie(labels, values, colors=colors, show_values=show_values, show_percentages=show_percentages, show_values_on_slices=show_values_on_slices)
+        chart.pie(labels, values, colors=colors, show_values=show_values, show_percentages=show_percentages, show_values_on_slices=show_values_on_slices, donut=donut, remaining_color=remaining_color)
         if title:
             chart.title(title)
         chart.show()
         return chart
+    
+    @staticmethod
+    def quick_donut(labels, values, colors=None, title=None, use_banners=False, banner_title=None, 
+                    show_values=True, show_percentages=True, show_values_on_slices=False, remaining_color=None):
+        """Quickly create and display a doughnut chart"""
+        return api.quick_pie(labels, values, colors=colors, title=title, use_banners=use_banners, 
+                           banner_title=banner_title, show_values=show_values, 
+                           show_percentages=show_percentages, show_values_on_slices=show_values_on_slices, donut=True, remaining_color=remaining_color)
     
     @staticmethod
     def enable_banners(enabled=True, default_title="Plotext Chart"):
@@ -833,6 +845,7 @@ quick_scatter = api.quick_scatter
 quick_line = api.quick_line
 quick_bar = api.quick_bar
 quick_pie = api.quick_pie
+quick_donut = api.quick_donut
 enable_banners = api.enable_banners
 log_info = api.log_info
 log_success = api.log_success
@@ -857,6 +870,7 @@ __all__ = [
     'quick_line',
     'quick_bar',
     'quick_pie',
+    'quick_donut',
     'enable_banners',
     'log_info',
     'log_success',

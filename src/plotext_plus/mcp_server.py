@@ -256,7 +256,8 @@ async def quick_bar(labels: List[str], values: List[Union[int, float]],
 async def quick_pie(labels: List[str], values: List[Union[int, float]], 
                    colors: Optional[List[str]] = None, title: Optional[str] = None, 
                    show_values: bool = True, show_percentages: bool = True,
-                   show_values_on_slices: bool = False) -> str:
+                   show_values_on_slices: bool = False, donut: bool = False,
+                   remaining_color: Optional[str] = None) -> str:
     """Create a quick pie chart using the chart classes API.
     
     Args:
@@ -267,6 +268,8 @@ async def quick_pie(labels: List[str], values: List[Union[int, float]],
         show_values: Show values in legend (optional, default True)
         show_percentages: Show percentages in legend (optional, default True)
         show_values_on_slices: Show values directly on pie slices (optional, default False)
+        donut: Create doughnut chart with hollow center (optional, default False)
+        remaining_color: Color for remaining slice in single-value charts (optional)
         
     Returns:
         The rendered pie chart as text
@@ -274,7 +277,37 @@ async def quick_pie(labels: List[str], values: List[Union[int, float]],
     _, output = _capture_plot_output(charts.quick_pie, labels, values, colors=colors, 
                                    title=title, show_values=show_values, 
                                    show_percentages=show_percentages,
-                                   show_values_on_slices=show_values_on_slices)
+                                   show_values_on_slices=show_values_on_slices,
+                                   donut=donut, remaining_color=remaining_color)
+    return output
+
+
+@tool
+async def quick_donut(labels: List[str], values: List[Union[int, float]], 
+                     colors: Optional[List[str]] = None, title: Optional[str] = None, 
+                     show_values: bool = True, show_percentages: bool = True,
+                     show_values_on_slices: bool = False,
+                     remaining_color: Optional[str] = None) -> str:
+    """Create a quick doughnut chart (pie chart with hollow center) using the chart classes API.
+    
+    Args:
+        labels: List of pie segment labels
+        values: List of pie segment values
+        colors: List of colors for segments (optional)
+        title: Chart title (optional)
+        show_values: Show values in legend (optional, default True)
+        show_percentages: Show percentages in legend (optional, default True)
+        show_values_on_slices: Show values directly on pie slices (optional, default False)
+        remaining_color: Color for remaining slice in single-value charts (optional)
+        
+    Returns:
+        The rendered doughnut chart as text
+    """
+    _, output = _capture_plot_output(charts.quick_donut, labels, values, colors=colors, 
+                                   title=title, show_values=show_values, 
+                                   show_percentages=show_percentages,
+                                   show_values_on_slices=show_values_on_slices,
+                                   remaining_color=remaining_color)
     return output
 
 
@@ -467,7 +500,8 @@ async def get_tool_info() -> Dict[str, Any]:
             "quick_scatter": "Quickly create scatter charts with theming",
             "quick_line": "Quickly create line charts with theming",
             "quick_bar": "Quickly create bar charts with theming", 
-            "quick_pie": "Quickly create pie charts with custom colors and options"
+            "quick_pie": "Quickly create pie charts with custom colors, donut mode, and remaining_color options",
+            "quick_donut": "Quickly create doughnut charts (hollow center pie charts)"
         },
         "theme_tools": {
             "get_available_themes": "List all available color themes",
@@ -489,11 +523,13 @@ async def get_tool_info() -> Dict[str, Any]:
         "supported_formats": {
             "image_formats": ["PNG", "JPG", "JPEG", "BMP", "GIF (static)"],
             "gif_formats": ["GIF (animated)"],
-            "chart_types": ["scatter", "line", "bar", "pie", "matrix/heatmap", "image"],
+            "chart_types": ["scatter", "line", "bar", "pie", "doughnut", "matrix/heatmap", "image"],
             "themes": "20+ built-in themes including solarized, dracula, cyberpunk"
         },
         "usage_tips": {
             "pie_charts": "Best for 3-7 categories, use full terminal dimensions",
+            "doughnut_charts": "Modern alternative to pie charts with hollow center, great for progress indicators",
+            "single_value_charts": "Perfect for progress/completion rates: ['Complete', 'Remaining'] with 'default' color",
             "images": "Use fast=True for better performance with large images",
             "themes": "Apply themes before creating plots for consistent styling",
             "banners": "Enable banner mode for professional-looking outputs"
@@ -707,6 +743,61 @@ async def pie_chart_best_practices_prompt() -> str:
 3. Combine small categories: ['A+B+C', 'D', 'E', 'F', 'G'] = [25, 15, 25, 20, 15] 
 4. Create the improved version with title 'Improved: Combined Small Categories'
 5. Explain the improvement in readability"""
+
+
+@prompt("single_value_pie_chart")
+async def single_value_pie_chart_prompt() -> str:
+    """Single-value pie chart for progress indicators"""
+    return """Create single-value pie charts perfect for progress indicators:
+1. Basic progress chart: ['Complete', 'Remaining'] = [75, 25], colors=['green', 'default']
+2. Title: 'Project Progress: 75%'  
+3. Show only percentages (show_values=False, show_percentages=True)
+4. Note: Remaining area appears as spaces, legend only shows 'Complete' entry
+5. Perfect for dashboards, completion meters, utilization rates"""
+
+
+@prompt("single_value_pie_with_remaining_color")
+async def single_value_pie_with_remaining_color_prompt() -> str:
+    """Single-value pie chart with colored remaining area"""
+    return """Create single-value pie chart with remaining_color parameter:
+1. Data: ['Complete', 'Remaining'] = [60, 40], colors=['blue', 'default']
+2. Add remaining_color='gray' to color the remaining slice
+3. Title: 'Task Completion: 60%'
+4. Compare with version without remaining_color
+5. Note: When remaining_color is specified, 'Remaining' appears in legend"""
+
+
+@prompt("doughnut_chart_basic")
+async def doughnut_chart_basic_prompt() -> str:
+    """Basic doughnut chart with hollow center"""
+    return """Create a doughnut chart with hollow center:
+1. Data: ['Sales', 'Marketing', 'Support', 'Development'] = [40, 25, 15, 20]
+2. Colors: ['blue', 'orange', 'green', 'red']  
+3. Add donut=True parameter to create hollow center
+4. Title: 'Department Budget - Doughnut Chart'
+5. Note: Inner radius automatically set to 1/3 of outer radius, center remains empty"""
+
+
+@prompt("doughnut_progress_indicator")
+async def doughnut_progress_indicator_prompt() -> str:
+    """Doughnut chart as progress indicator"""
+    return """Create a doughnut chart progress indicator:
+1. Single-value data: ['Completed', 'Remaining'] = [85, 15]
+2. Colors: ['cyan', 'default'] 
+3. Use both donut=True and show only percentages
+4. Title: 'Project Progress - 85% Complete'
+5. Perfect for modern dashboards - combines hollow center with progress visualization"""
+
+
+@prompt("quick_donut_convenience")
+async def quick_donut_convenience_prompt() -> str:
+    """Using quick_donut convenience function"""
+    return """Demonstrate the quick_donut convenience function:
+1. Use quick_donut instead of quick_pie with donut=True
+2. Data: ['Task A', 'Task B', 'Task C'] = [30, 45, 25]
+3. Colors: ['purple', 'yellow', 'green']
+4. Title: 'Task Distribution'
+5. Show how quick_donut automatically creates hollow center charts"""
 
 
 # Main server entry point

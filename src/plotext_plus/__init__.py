@@ -26,6 +26,6 @@ from ._api import (
     Chart, Legend, PlotextAPI, api,
     ScatterChart, LineChart, BarChart, HistogramChart,
     CandlestickChart, HeatmapChart, MatrixChart, StemChart,
-    create_chart, quick_scatter, quick_line, quick_bar,
+    create_chart, quick_scatter, quick_line, quick_bar, quick_pie, quick_donut,
     enable_banners, log_info, log_success, log_warning, log_error
 )

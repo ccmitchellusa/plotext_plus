@@ -775,9 +775,13 @@ class monitor_class(build_class):
             self.matrix.canvas = '\n'.join([''.join(row) for row in matrix])
             self.fast_plot = True
 
-    def draw_pie(self, labels, values, colors = None, radius = None, show_values = True, show_percentages = True, title = None, show_values_on_slices = False):
+    def draw_pie(self, labels, values, colors = None, radius = None, show_values = True, show_percentages = True, title = None, show_values_on_slices = False, donut = False, remaining_color = None):
         """
         Draw a pie chart using filled colored segments and a legend.
+        
+        Args:
+            donut (bool): If True, creates a doughnut chart with hollow center (inner radius = 1/3 outer radius)
+            remaining_color (str): If specified, colors the remaining slice with this color instead of leaving it as spaces
         """
         import math
         
@@ -797,19 +801,13 @@ class monitor_class(build_class):
             color_cycle = ['red', 'blue', 'green', 'orange', 'magenta', 'cyan', 'white']
             colors = [color_cycle[i % len(color_cycle)] for i in range(len(labels))]
         
-        # Default radius - calculate based on available terminal space for maximum usage
+        # Default radius - calculate based on available plot space
         if radius is None:
             # Get the actual plot area dimensions 
             plot_width, plot_height = self.size
             
-            # Calculate radius to fill most of the available space
-            # Account for aspect ratio (terminal chars are ~1.5x taller than wide)
-            aspect_ratio = 1.5
-            max_radius_x = (plot_width / 2) / aspect_ratio
-            max_radius_y = plot_height / 2
-            
-            # Use the smaller dimension to ensure the pie fits, leave some margin for legend
-            radius = min(max_radius_x * 0.75, max_radius_y * 0.85)
+            # Set radius to half of the smaller dimension minus 4 for border margin
+            radius = (min(plot_width, plot_height) - 4) / 2.0
             radius = max(radius, 3)  # Ensure minimum radius of 3
         
         # Center the pie chart
@@ -828,8 +826,13 @@ class monitor_class(build_class):
         
         # Collect all points for each segment, then draw each segment in one call
         # Use efficient scanning - just slightly beyond the actual pie radius
-        scan_radius_x = int(radius * aspect_ratio * 1.2 + 2)
-        scan_radius_y = int(radius * 1.2 + 2)
+        # For doughnuts, use denser scanning to ensure solid ring
+        if donut:
+            scan_radius_x = int(radius * aspect_ratio * 1.5 + 3)
+            scan_radius_y = int(radius * 1.5 + 3)
+        else:
+            scan_radius_x = int(radius * aspect_ratio * 1.2 + 2)
+            scan_radius_y = int(radius * 1.2 + 2)
         
         # Pre-calculate cumulative angles for segment boundaries
         segment_boundaries = []
@@ -847,69 +850,82 @@ class monitor_class(build_class):
         for y_offset in range(-scan_radius_y, scan_radius_y + 1):
             for x_offset in range(-scan_radius_x, scan_radius_x + 1):
                 # Calculate distance from center with aspect ratio correction
-                # Since terminal chars are ~2x taller than wide, compress x coordinate
+                # Since terminal chars are ~1.5x taller than wide, compress x coordinate
                 adjusted_x = x_offset / aspect_ratio
                 distance = math.sqrt(adjusted_x * adjusted_x + y_offset * y_offset)
                 
-                # Fill ALL positions within and slightly beyond the pie circle for complete coverage
-                if distance <= radius * 1.1:  # Even more generous threshold
-                    # Special handling for center point to avoid division by zero in angle calculation
-                    if distance < 0.01:  # Very small threshold for true center
-                        # Center point belongs to the first segment
-                        segment_idx = 0
-                    else:
-                        # Calculate angle for this position using adjusted coordinates
-                        angle = math.atan2(y_offset, adjusted_x)
-                        if angle < 0:
-                            angle += 2 * math.pi
-                        
-                        # Find which segment this position belongs to using robust angle detection
-                        segment_idx = 0
-                        found_segment = False
-                        epsilon = 0.02  # Even larger epsilon for maximum boundary coverage
-                        
-                        for i, (start_angle, end_angle) in enumerate(segment_boundaries):
-                            # Handle wraparound case for segments that cross 0 degrees
-                            if end_angle > 2 * math.pi:
-                                wrap_end = end_angle - 2 * math.pi
-                                if angle >= start_angle - epsilon or angle <= wrap_end + epsilon:
+                # For doughnut inner boundary, use elliptical check to create circular appearance
+                # The inner boundary should be elliptical in terminal coordinates to appear circular
+                inner_radius = radius / 3.0 if donut else 0
+                
+                # Check if point is outside the inner ellipse (for circular appearance)
+                if donut:
+                    # Create elliptical inner boundary: x^2/a^2 + y^2/b^2 > r^2
+                    # where a = inner_radius * aspect_ratio, b = inner_radius
+                    ellipse_x_term = (x_offset * x_offset) / (inner_radius * aspect_ratio * inner_radius * aspect_ratio)
+                    ellipse_y_term = (y_offset * y_offset) / (inner_radius * inner_radius)
+                    ellipse_value = ellipse_x_term + ellipse_y_term
+                    outside_inner = ellipse_value > 1.0
+                    
+                else:
+                    outside_inner = True
+                
+                # Use exact radius to stay within plot boundaries
+                threshold = radius
+                
+                if distance <= threshold and outside_inner:
+                    # Calculate angle for this position using adjusted coordinates
+                    angle = math.atan2(y_offset, adjusted_x)
+                    if angle < 0:
+                        angle += 2 * math.pi
+                    
+                    # Find which segment this position belongs to using robust angle detection
+                    segment_idx = 0
+                    found_segment = False
+                    epsilon = 0.02  # Even larger epsilon for maximum boundary coverage
+                    
+                    for i, (start_angle, end_angle) in enumerate(segment_boundaries):
+                        # Handle wraparound case for segments that cross 0 degrees
+                        if end_angle > 2 * math.pi:
+                            wrap_end = end_angle - 2 * math.pi
+                            if angle >= start_angle - epsilon or angle <= wrap_end + epsilon:
+                                segment_idx = i
+                                found_segment = True
+                                break
+                        else:
+                            # Use very generous boundary detection
+                            # For the last segment, use <= to include the boundary
+                            if i == len(segment_boundaries) - 1:
+                                if start_angle - epsilon <= angle <= end_angle + epsilon:
                                     segment_idx = i
                                     found_segment = True
                                     break
                             else:
-                                # Use very generous boundary detection
-                                # For the last segment, use <= to include the boundary
-                                if i == len(segment_boundaries) - 1:
-                                    if start_angle - epsilon <= angle <= end_angle + epsilon:
-                                        segment_idx = i
-                                        found_segment = True
-                                        break
-                                else:
-                                    if start_angle - epsilon <= angle < end_angle + epsilon:
-                                        segment_idx = i
-                                        found_segment = True
-                                        break
-                        
-                        # If no segment found (due to floating point precision), assign based on closest angle
-                        if not found_segment:
-                            # Find the segment with the smallest angle distance
-                            min_distance = float('inf')
-                            for i, (start_angle, end_angle) in enumerate(segment_boundaries):
-                                mid_angle = (start_angle + end_angle) / 2
-                                # Handle wraparound for mid angle calculation
-                                if end_angle > 2 * math.pi:
-                                    mid_angle = start_angle + ((end_angle - start_angle) / 2)
-                                    if mid_angle > 2 * math.pi:
-                                        mid_angle -= 2 * math.pi
-                                
-                                # Calculate angular distance (accounting for circular nature)
-                                angle_diff = abs(angle - mid_angle)
-                                if angle_diff > math.pi:
-                                    angle_diff = 2 * math.pi - angle_diff
-                                
-                                if angle_diff < min_distance:
-                                    min_distance = angle_diff
+                                if start_angle - epsilon <= angle < end_angle + epsilon:
                                     segment_idx = i
+                                    found_segment = True
+                                    break
+                    
+                    # If no segment found (due to floating point precision), assign based on closest angle
+                    if not found_segment:
+                        # Find the segment with the smallest angle distance
+                        min_distance = float('inf')
+                        for i, (start_angle, end_angle) in enumerate(segment_boundaries):
+                            mid_angle = (start_angle + end_angle) / 2
+                            # Handle wraparound for mid angle calculation
+                            if end_angle > 2 * math.pi:
+                                mid_angle = start_angle + ((end_angle - start_angle) / 2)
+                                if mid_angle > 2 * math.pi:
+                                    mid_angle -= 2 * math.pi
+                            
+                            # Calculate angular distance (accounting for circular nature)
+                            angle_diff = abs(angle - mid_angle)
+                            if angle_diff > math.pi:
+                                angle_diff = 2 * math.pi - angle_diff
+                            
+                            if angle_diff < min_distance:
+                                min_distance = angle_diff
+                                segment_idx = i
                     
                     # Add this exact character position to the appropriate segment
                     char_x = center_x + x_offset  
@@ -927,12 +943,28 @@ class monitor_class(build_class):
                         neighbor_x = x + dx
                         neighbor_y = y + dy
                         
-                        # Check if this neighbor is within the circular area
-                        adjusted_x = (neighbor_x - center_x) / aspect_ratio  
-                        adjusted_y = neighbor_y - center_y
-                        neighbor_distance = math.sqrt(adjusted_x * adjusted_x + adjusted_y * adjusted_y)
+                        # Check if this neighbor is within the circular area using same logic as main pass
+                        x_offset = neighbor_x - center_x
+                        y_offset = neighbor_y - center_y
+                        adjusted_x = x_offset / aspect_ratio  
+                        neighbor_distance = math.sqrt(adjusted_x * adjusted_x + y_offset * y_offset)
                         
-                        if neighbor_distance <= radius * 1.1:  # Within pie area
+                        # Use same boundary checks as main algorithm
+                        inner_radius = radius / 3.0 if donut else 0
+                        
+                        # Check if point is outside the inner ellipse (for circular appearance)
+                        if donut:
+                            # Use same elliptical inner boundary as main pass
+                            ellipse_x_term = (x_offset * x_offset) / (inner_radius * aspect_ratio * inner_radius * aspect_ratio)
+                            ellipse_y_term = (y_offset * y_offset) / (inner_radius * inner_radius)
+                            outside_inner = ellipse_x_term + ellipse_y_term > 1.0
+                        else:
+                            outside_inner = True
+                        
+                        # Use exact radius to stay within plot boundaries (same as main pass)
+                        threshold = radius
+                        
+                        if neighbor_distance <= threshold and outside_inner:
                             additional_points[segment_idx].add((neighbor_x, neighbor_y))
         
         # Merge additional points with main points
@@ -943,6 +975,15 @@ class monitor_class(build_class):
         # This ensures complete filling without gaps
         for segment_idx, (points, color) in enumerate(zip(segment_points, colors)):
             if points:  # Only draw if segment has points
+                # Handle remaining_color for single-value pie charts
+                if color == "default":
+                    if remaining_color is not None:
+                        # Use the specified remaining_color instead of default
+                        color = remaining_color
+                    else:
+                        # Skip drawing - leave as spaces (current behavior)
+                        continue
+                    
                 points_list = list(points)
                 
                 # Group points by y-coordinate to draw horizontal filled lines
@@ -952,26 +993,104 @@ class monitor_class(build_class):
                         y_groups[y] = []
                     y_groups[y].append(x)
                 
-                # For each y-coordinate, draw a continuous horizontal line
-                for y_coord, x_coords in y_groups.items():
-                    if x_coords:
-                        x_coords.sort()  # Sort x coordinates
-                        x_min, x_max = min(x_coords), max(x_coords)
-                        
-                        # Create a continuous range of x coordinates to fill the gap
-                        if x_max > x_min:
-                            # Draw filled horizontal line from x_min to x_max
+                # For doughnut charts, use smart filling that avoids the hollow center
+                # For regular pie charts, use full horizontal line filling
+                if donut:
+                    # Smart filling for doughnut charts: fill gaps within ring segments but avoid center
+                    for y_coord, x_coords in y_groups.items():
+                        if x_coords:
+                            x_coords.sort()  # Sort x coordinates
+                            
+                            # Find continuous segments, avoiding the center gap
                             fill_x_coords = []
-                            x_step = 0.5  # Smaller step for better coverage
-                            current_x = x_min
-                            while current_x <= x_max:
-                                fill_x_coords.append(current_x)
-                                current_x += x_step
-                            fill_y_coords = [y_coord] * len(fill_x_coords)
-                            self.draw(fill_x_coords, fill_y_coords, marker='sd', color=color)
-                        else:
-                            # Single point
-                            self.draw([x_min], [y_coord], marker='sd', color=color)
+                            x_step = 0.5
+                            
+                            # Determine if this y_coord passes through the hollow center
+                            y_offset = y_coord - center_y
+                            center_x_range = []
+                            
+                            # Calculate the x-range that should be hollow at this y-coordinate
+                            if abs(y_offset) < inner_radius:
+                                # This y-line passes through the hollow center
+                                # Calculate x-bounds of the elliptical hollow area
+                                ellipse_y_term = (y_offset * y_offset) / (inner_radius * inner_radius)
+                                if ellipse_y_term < 1.0:
+                                    ellipse_x_term_needed = 1.0 - ellipse_y_term
+                                    max_x_offset = math.sqrt(ellipse_x_term_needed) * inner_radius * aspect_ratio
+                                    center_x_min = center_x - max_x_offset
+                                    center_x_max = center_x + max_x_offset
+                                    center_x_range = [center_x_min, center_x_max]
+                            
+                            # Fill between consecutive x-coordinates, but avoid the center region
+                            i = 0
+                            while i < len(x_coords):
+                                segment_start = x_coords[i]
+                                
+                                # Find the end of this continuous segment
+                                j = i
+                                while j < len(x_coords) - 1:
+                                    gap = x_coords[j + 1] - x_coords[j]
+                                    # If there's a large gap, this segment ends
+                                    if gap > 2.0:  # Allow small gaps but break on large ones
+                                        break
+                                    j += 1
+                                
+                                segment_end = x_coords[j]
+                                
+                                # Fill this segment, but avoid the center region
+                                if center_x_range:
+                                    # Split segment around the hollow center
+                                    center_min, center_max = center_x_range
+                                    
+                                    # Fill left part (before center)
+                                    if segment_start < center_min:
+                                        left_end = min(segment_end, center_min)
+                                        current_x = segment_start
+                                        while current_x <= left_end:
+                                            fill_x_coords.append(current_x)
+                                            current_x += x_step
+                                    
+                                    # Fill right part (after center)
+                                    if segment_end > center_max:
+                                        right_start = max(segment_start, center_max)
+                                        current_x = right_start
+                                        while current_x <= segment_end:
+                                            fill_x_coords.append(current_x)
+                                            current_x += x_step
+                                else:
+                                    # No center interference, fill entire segment
+                                    current_x = segment_start
+                                    while current_x <= segment_end:
+                                        fill_x_coords.append(current_x)
+                                        current_x += x_step
+                                
+                                i = j + 1
+                            
+                            # Draw the filled segments
+                            if fill_x_coords:
+                                fill_y_coords = [y_coord] * len(fill_x_coords)
+                                self.draw(fill_x_coords, fill_y_coords, marker='sd', color=color)
+                else:
+                    # For regular pie charts, use full horizontal line filling
+                    for y_coord, x_coords in y_groups.items():
+                        if x_coords:
+                            x_coords.sort()  # Sort x coordinates
+                            x_min, x_max = min(x_coords), max(x_coords)
+                            
+                            # Create a continuous range of x coordinates to fill the gap
+                            if x_max > x_min:
+                                # Draw filled horizontal line from x_min to x_max
+                                fill_x_coords = []
+                                x_step = 0.5  # Smaller step for better coverage
+                                current_x = x_min
+                                while current_x <= x_max:
+                                    fill_x_coords.append(current_x)
+                                    current_x += x_step
+                                fill_y_coords = [y_coord] * len(fill_x_coords)
+                                self.draw(fill_x_coords, fill_y_coords, marker='sd', color=color)
+                            else:
+                                # Single point
+                                self.draw([x_min], [y_coord], marker='sd', color=color)
         
         # Reset cumulative_angle for label drawing
         cumulative_angle = 0
@@ -1001,9 +1120,10 @@ class monitor_class(build_class):
             
             cumulative_angle += slice_angle
         
-        # Extend the plot area to accommodate legend
+        # Extend the plot area to accommodate legend (calculate before filtering)
         max_text_length = max(len(f"{label}: {value} ({percentage:.1f}%)") 
-                              for label, value, percentage in zip(labels, values, percentages))
+                              for label, value, percentage in zip(labels, values, percentages)
+                              if label.lower() != "remaining") if any(label.lower() != "remaining" for label in labels) else 20
         
         # Set plot limits to include legend area (adjust x for aspect ratio)
         x_radius = radius * aspect_ratio
@@ -1014,7 +1134,23 @@ class monitor_class(build_class):
         legend_start_x = x_radius + 1.5
         legend_start_y = -radius + len(labels) * 1.0 - 0.5
         
+        # Filter out "Remaining" labels and default colors for single-value pie charts
+        legend_items = []
         for i, (label, value, percentage, color) in enumerate(zip(labels, values, percentages, colors)):
+            # Handle remaining_color logic for legend
+            if color == "default":
+                if remaining_color is not None:
+                    # Show "Remaining" in legend when remaining_color is specified
+                    legend_items.append((label, value, percentage, remaining_color))
+                # Skip if no remaining_color (leave as spaces)
+            else:
+                # Always show non-default colors
+                legend_items.append((label, value, percentage, color))
+        
+        # Adjust legend positioning for filtered items
+        legend_start_y = -radius + len(legend_items) * 1.0 - 0.5
+        
+        for i, (label, value, percentage, color) in enumerate(legend_items):
             legend_x = legend_start_x
             legend_y = legend_start_y - i * 1.2  # Space between legend items
             
