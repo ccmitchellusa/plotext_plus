@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from plotext_plus._utility import all_markers, colors
 import argparse, sys, os
-import plotext as plt
+import plotext_plus as plt
 try:
     import shtab
 except ImportError:
