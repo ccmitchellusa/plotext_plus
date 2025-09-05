@@ -30,11 +30,18 @@ pip install plotext_plus[mcp]
 
 # Install all optional features
 uv add plotext_plus[image,video,mcp]
+
+# Install as UV tool for easy access
+uv tool install plotext_plus
 ```
 
 ## Usage
 
 ### Starting the Server
+
+#### Method 1: Direct Installation (Recommended)
+
+If you've installed plotext_plus as a UV tool or globally:
 
 ```bash
 # Start the MCP server
@@ -46,6 +53,23 @@ plotext-mcp --info
 # Show version
 plotext-mcp --version
 ```
+
+#### Method 2: Using uvx (Alternative)
+
+If you encounter issues with direct installation, use UV tool installation:
+
+```bash
+# Install plotext_plus as a UV tool
+uv tool install plotext_plus
+
+# Then run the MCP server directly
+plotext-mcp
+
+# Or use UV run for one-time execution
+uv run plotext-mcp --info
+```
+
+**Note**: The uvx command `uvx --from plotext_plus plotext-mcp` doesn't work correctly because uvx tries to run the main plotext script with plotext-mcp as an argument. Use the methods above instead.
 
 ### Server Information
 
@@ -431,6 +455,22 @@ To use the plotext_plus MCP server with mcp-cli--an awesome terminal-based MCP h
     "plotext-plus": {
       "command": "plotext-mcp",
       "args": [],
+      "env": {}
+    }
+  }
+}
+```
+
+### Alternative Configuration Using UV
+
+If you prefer to use UV directly:
+
+```json
+{
+  "mcpServers": {
+    "plotext-plus": {
+      "command": "uv",
+      "args": ["run", "plotext-mcp"],
       "env": {}
     }
   }

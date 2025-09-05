@@ -245,6 +245,13 @@ def main(argv = None):
     type = args.type
     first_row = 0
     if type != "youtube":
+        # Handle case when path is not provided (no subcommand)
+        if not hasattr(args, 'path'):
+            print("Error: No subcommand provided. Use --help to see available commands.")
+            print("Available commands: scatter, plot, plotter, bar, hist, image, gif, video, youtube")
+            print("Example: plotext_plus scatter --path test")
+            return
+        
         path = args.path
         first_row = args.first_row
         clt = True if args.clear_terminal[-1] == 'True' else False
