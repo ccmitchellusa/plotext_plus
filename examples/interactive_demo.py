@@ -315,6 +315,8 @@ def demo_pie_charts(use_full_height=False):
     
     # Simple pie chart using function API
     plt.clear_terminal()
+    plt.clear_figure()
+
     plt.log_info("📊 Creating basic pie chart...")
     
     labels = ["Product A", "Product B", "Product C", "Product D"]
@@ -330,6 +332,8 @@ def demo_pie_charts(use_full_height=False):
     
     # Pie chart with percentages only
     plt.clear_terminal()  
+    plt.clear_figure()
+
     plt.log_info("📊 Creating pie chart with percentages...")
     
     budget_labels = ["Marketing", "Development", "Operations", "Sales", "Support"]
@@ -347,6 +351,8 @@ def demo_pie_charts(use_full_height=False):
     
     # Pie chart using Chart class API
     plt.clear_terminal()
+    plt.clear_figure()
+
     plt.log_info("📊 Creating pie chart with Chart class...")
     
     survey_labels = ["Excellent", "Good", "Fair", "Poor"]
@@ -363,6 +369,8 @@ def demo_pie_charts(use_full_height=False):
     
     # Quick pie chart demo
     plt.clear_terminal()
+    plt.clear_figure()
+
     plt.log_info("📊 Creating quick pie chart...")
     
     os_labels = ["Windows", "macOS", "Linux", "Other"]
@@ -380,6 +388,8 @@ def demo_pie_charts(use_full_height=False):
     
     # Single-value doughnut progress indicator
     plt.clear_terminal()
+    plt.clear_figure()
+
     plt.log_info("📊 Creating single-value doughnut progress indicator...")
     
     # Use banner-aware width that accounts for border characters  
@@ -400,6 +410,8 @@ def demo_pie_charts(use_full_height=False):
     
     # Doughnut chart demo
     plt.clear_terminal()
+    plt.clear_figure()
+
     plt.log_info("🍩 Creating doughnut chart demonstrations...")
     
     # Basic doughnut chart
@@ -418,6 +430,8 @@ def demo_pie_charts(use_full_height=False):
     
     # Single-value doughnut for progress indicator
     plt.clear_terminal()
+    plt.clear_figure()
+
     plt.log_info("📊 Creating single-value doughnut progress indicator...")
     
     plt.plotsize(plot_width, terminal_height - 5)
@@ -432,6 +446,7 @@ def demo_pie_charts(use_full_height=False):
     
     # Doughnut with remaining color demo
     plt.clear_terminal()
+
     plt.log_info("🎨 Creating doughnut with remaining color demo...")
     
     # Single full-screen doughnut chart
