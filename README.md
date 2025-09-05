@@ -1,12 +1,11 @@
 # 📊 Plotext+ - Modern Terminal Plotting
 
 [![PyPi](https://badge.fury.io/py/plotext_plus.svg)](https://badge.fury.io/py/plotext_plus)
-[![GitHub stars](https://img.shields.io/github/stars/piccolomo/plotext_plus.svg)](https://github.com/ccmitchellusa/plotext_plus/stargazers)
 [![Downloads](https://pepy.tech/badge/plotext_plus/month)](https://pepy.tech/project/plotext_plus)
 [![GitHubIssues](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/ccmitchellusa/plotext_plus/issues)
 [![GitTutorial](https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?)](https://github.com/ccmitchellusa/plotext_plus/pulls)
 
-![logo](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/logo.png)
+![logo](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/refs/heads/main/data/logo.png)
 
 **Plotext+ plots directly in your terminal** with stunning visuals, modern APIs, and professional styling.  Plotext+ is a redesigned version of the original [plotext](https://github.com/piccolomo/plotext) library by Savino Piccolomo. New features include an updated API with object oriented features, an MCP server to make the project easily usable with AI & LLM scenarios, new themes and integration with chuk-term to make sure it works in the awesome [mcp-cli](https://github.com/chrishayuk/mcp-cli) by Chris Hay.
 
@@ -24,7 +23,7 @@
 
 ⚡ **Zero Dependencies**: No required dependencies (optional packages for multimedia and AI integration)
 
-![subplots](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/master/data/subplots.png)
+![subplots](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/refs/heads/main/data/subplots.png)
 
 ## 🚀 Quick Start
 

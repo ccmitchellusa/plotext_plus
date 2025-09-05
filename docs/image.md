@@ -23,7 +23,7 @@ To plot an image use the `image_plot(path)` function.
 
 - To save the result **in colors**, as an `html` page, use the function `plt.savefig()`, described [here](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/utilities.md#useful-functions).
 
-In this example, a [test image](https://raw.githubusercontent.com/ccmitchellusa/plotext/master/data/cat.jpg) is downloaded in the home folder, visualized and finally removed:
+In this example, a [test image](https://raw.githubusercontent.com/ccmitchellusa/plotext_plus/refs/heads/main/data/hist.png) is downloaded in the home folder, visualized and finally removed:
 
 ```python
 import plotext_plus as plt
