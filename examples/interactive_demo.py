@@ -564,7 +564,7 @@ def demo_theme_showcase(use_full_height=False):
     
     # Get available themes
     try:
-        from plotext._themes import get_theme_info
+        from plotext_plus._themes import get_theme_info
         theme_info = get_theme_info()
         themes_to_show = list(theme_info.keys())
     except ImportError:
