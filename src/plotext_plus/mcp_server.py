@@ -71,11 +71,15 @@ async def scatter_plot(x: List[Union[int, float]], y: List[Union[int, float]],
     Returns:
         The rendered plot as text
     """
+    # Convert string inputs to float
+    x_numeric = [float(val) if isinstance(val, str) else val for val in x]
+    y_numeric = [float(val) if isinstance(val, str) else val for val in y]
+    
     plotting.clear_figure()
     if title:
         plotting.title(title)
     
-    _, output = _capture_plot_output(plotting.scatter, x, y, marker=marker, color=color)
+    _, output = _capture_plot_output(plotting.scatter, x_numeric, y_numeric, marker=marker, color=color)
     _, show_output = _capture_plot_output(plotting.show)
     
     return output + show_output
@@ -95,14 +99,41 @@ async def line_plot(x: List[Union[int, float]], y: List[Union[int, float]],
     Returns:
         The rendered plot as text
     """
-    plotting.clear_figure()
-    if title:
-        plotting.title(title)
+    import sys
+    print(f"DEBUG: line_plot called with x={x}, y={y}, title={title}", file=sys.stderr)
     
-    _, output = _capture_plot_output(plotting.plot, x, y, color=color)
-    _, show_output = _capture_plot_output(plotting.show)
+    # Convert string inputs to float
+    try:
+        x_numeric = [float(val) if isinstance(val, str) else val for val in x]
+        y_numeric = [float(val) if isinstance(val, str) else val for val in y]
+        print(f"DEBUG: Converted to x_numeric={x_numeric}, y_numeric={y_numeric}", file=sys.stderr)
+    except Exception as e:
+        print(f"DEBUG: Error converting inputs: {e}", file=sys.stderr)
+        raise
     
-    return output + show_output
+    try:
+        plotting.clear_figure()
+        print("DEBUG: Cleared figure", file=sys.stderr)
+        
+        if title:
+            plotting.title(title)
+            print(f"DEBUG: Set title: {title}", file=sys.stderr)
+        
+        _, output = _capture_plot_output(plotting.plot, x_numeric, y_numeric, color=color)
+        print(f"DEBUG: Generated plot output, length: {len(output)}", file=sys.stderr)
+        
+        _, show_output = _capture_plot_output(plotting.show)
+        print(f"DEBUG: Generated show output, length: {len(show_output)}", file=sys.stderr)
+        
+        result = output + show_output
+        print(f"DEBUG: Returning result, total length: {len(result)}", file=sys.stderr)
+        return result
+        
+    except Exception as e:
+        print(f"DEBUG: Error during plotting: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
+        raise
 
 
 @tool
@@ -119,11 +150,14 @@ async def bar_chart(labels: List[str], values: List[Union[int, float]],
     Returns:
         The rendered plot as text
     """
+    # Convert string inputs to float
+    values_numeric = [float(val) if isinstance(val, str) else val for val in values]
+    
     plotting.clear_figure()
     if title:
         plotting.title(title)
     
-    _, output = _capture_plot_output(plotting.bar, labels, values, color=color)
+    _, output = _capture_plot_output(plotting.bar, labels, values_numeric, color=color)
     _, show_output = _capture_plot_output(plotting.show)
     
     return output + show_output
@@ -212,7 +246,11 @@ async def quick_scatter(x: List[Union[int, float]], y: List[Union[int, float]],
     Returns:
         The rendered chart as text
     """
-    _, output = _capture_plot_output(charts.quick_scatter, x, y, title=title, theme=theme_name)
+    # Convert string inputs to float
+    x_numeric = [float(val) if isinstance(val, str) else val for val in x]
+    y_numeric = [float(val) if isinstance(val, str) else val for val in y]
+    
+    _, output = _capture_plot_output(charts.quick_scatter, x_numeric, y_numeric, title=title, theme=theme_name)
     return output
 
 
@@ -230,7 +268,11 @@ async def quick_line(x: List[Union[int, float]], y: List[Union[int, float]],
     Returns:
         The rendered chart as text
     """
-    _, output = _capture_plot_output(charts.quick_line, x, y, title=title, theme=theme_name)
+    # Convert string inputs to float
+    x_numeric = [float(val) if isinstance(val, str) else val for val in x]
+    y_numeric = [float(val) if isinstance(val, str) else val for val in y]
+    
+    _, output = _capture_plot_output(charts.quick_line, x_numeric, y_numeric, title=title, theme=theme_name)
     return output
 
 
@@ -248,7 +290,10 @@ async def quick_bar(labels: List[str], values: List[Union[int, float]],
     Returns:
         The rendered chart as text
     """
-    _, output = _capture_plot_output(charts.quick_bar, labels, values, title=title, theme=theme_name)
+    # Convert string inputs to float
+    values_numeric = [float(val) if isinstance(val, str) else val for val in values]
+    
+    _, output = _capture_plot_output(charts.quick_bar, labels, values_numeric, title=title, theme=theme_name)
     return output
 
 
@@ -274,7 +319,10 @@ async def quick_pie(labels: List[str], values: List[Union[int, float]],
     Returns:
         The rendered pie chart as text
     """
-    _, output = _capture_plot_output(charts.quick_pie, labels, values, colors=colors, 
+    # Convert string inputs to float
+    values_numeric = [float(val) if isinstance(val, str) else val for val in values]
+    
+    _, output = _capture_plot_output(charts.quick_pie, labels, values_numeric, colors=colors, 
                                    title=title, show_values=show_values, 
                                    show_percentages=show_percentages,
                                    show_values_on_slices=show_values_on_slices,
@@ -303,7 +351,10 @@ async def quick_donut(labels: List[str], values: List[Union[int, float]],
     Returns:
         The rendered doughnut chart as text
     """
-    _, output = _capture_plot_output(charts.quick_donut, labels, values, colors=colors, 
+    # Convert string inputs to float
+    values_numeric = [float(val) if isinstance(val, str) else val for val in values]
+    
+    _, output = _capture_plot_output(charts.quick_donut, labels, values_numeric, colors=colors, 
                                    title=title, show_values=show_values, 
                                    show_percentages=show_percentages,
                                    show_values_on_slices=show_values_on_slices,
@@ -803,8 +854,152 @@ async def quick_donut_convenience_prompt() -> str:
 # Main server entry point
 def start_server():
     """Start the MCP server."""
-    print("Starting Plotext Plus MCP Server...")
-    run()
+    import sys
+    import os
+    
+    # Check if we're being run in STDIO mode (by MCP CLI)
+    # Force HTTP mode if MCP_HTTP_MODE is set, otherwise detect based on stdin
+    force_http = os.getenv('MCP_HTTP_MODE', '').lower() == 'true'
+    force_stdio = os.getenv('MCP_STDIO_MODE', '').lower() == 'true'
+    
+    if force_http:
+        is_stdio_mode = False
+    elif force_stdio:
+        is_stdio_mode = True
+    else:
+        # Auto-detect: STDIO mode when stdin is not a terminal (pipes/redirects)
+        is_stdio_mode = not sys.stdin.isatty()
+    
+    if is_stdio_mode:
+        # STDIO mode for MCP CLI - simple JSON-RPC implementation
+        import json
+        import asyncio
+        
+        async def handle_stdio():
+            try:
+                for line in sys.stdin:
+                    if not line.strip():
+                        continue
+                    
+                    try:
+                        request = json.loads(line)
+                        method = request.get('method')
+                        request_id = request.get('id')
+                        
+                        if method == 'initialize':
+                            response = {
+                                "jsonrpc": "2.0",
+                                "id": request_id,
+                                "result": {
+                                    "protocolVersion": "2024-11-05",
+                                    "capabilities": {
+                                        "tools": {},
+                                        "prompts": {},
+                                        "resources": {}
+                                    },
+                                    "serverInfo": {
+                                        "name": "Plotext Plus MCP Server",
+                                        "version": "1.0.0"
+                                    }
+                                }
+                            }
+                        elif method == 'tools/list':
+                            response = {
+                                "jsonrpc": "2.0",
+                                "id": request_id,
+                                "result": {
+                                    "tools": [
+                                        {
+                                            "name": "line_plot",
+                                            "description": "Create a line plot with given x and y data points",
+                                            "inputSchema": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "x": {"type": "array", "items": {"type": "number"}},
+                                                    "y": {"type": "array", "items": {"type": "number"}},
+                                                    "title": {"type": "string"}
+                                                },
+                                                "required": ["x", "y"]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        elif method == 'tools/call':
+                            tool_name = request['params']['name']
+                            arguments = request['params']['arguments']
+                            
+                            if tool_name == 'line_plot':
+                                try:
+                                    result = await line_plot(**arguments)
+                                    response = {
+                                        "jsonrpc": "2.0",
+                                        "id": request_id,
+                                        "result": {
+                                            "content": [
+                                                {
+                                                    "type": "text",
+                                                    "text": result
+                                                }
+                                            ]
+                                        }
+                                    }
+                                except Exception as e:
+                                    response = {
+                                        "jsonrpc": "2.0",
+                                        "id": request_id,
+                                        "error": {
+                                            "code": -32000,
+                                            "message": str(e)
+                                        }
+                                    }
+                            else:
+                                response = {
+                                    "jsonrpc": "2.0",
+                                    "id": request_id,
+                                    "error": {
+                                        "code": -32601,
+                                        "message": f"Unknown tool: {tool_name}"
+                                    }
+                                }
+                        else:
+                            response = {
+                                "jsonrpc": "2.0",
+                                "id": request_id,
+                                "error": {
+                                    "code": -32601,
+                                    "message": f"Unknown method: {method}"
+                                }
+                            }
+                        
+                        print(json.dumps(response), flush=True)
+                        
+                    except Exception as e:
+                        error_response = {
+                            "jsonrpc": "2.0",
+                            "id": request.get('id') if 'request' in locals() else None,
+                            "error": {
+                                "code": -32700,
+                                "message": f"Parse error: {str(e)}"
+                            }
+                        }
+                        print(json.dumps(error_response), flush=True)
+                        
+            except Exception as e:
+                print(f"STDIO handler error: {e}", file=sys.stderr)
+        
+        asyncio.run(handle_stdio())
+    else:
+        # HTTP server mode (default)
+        print("Starting Plotext Plus MCP Server...")
+        from chuk_mcp_server import ChukMCPServer
+        server = ChukMCPServer(
+            name="Plotext Plus MCP Server", 
+            version="1.0.0",
+            prompts=True,  # Enable prompts capability
+            logging=True   # Enable logging capability for MCP clients
+        )
+        server.run()
 
 
 if __name__ == "__main__":
