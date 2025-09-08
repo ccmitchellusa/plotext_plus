@@ -27,6 +27,11 @@ def main():
         action="store_true",
         help="Show MCP server information"
     )
+    parser.add_argument(
+        "--stdio", 
+        action="store_true",
+        help="Use STDIO transport mode instead of HTTP (requires dev version of chuk-mcp-server)"
+    )
     
     args = parser.parse_args()
     
@@ -60,11 +65,12 @@ def main():
         print("- config://plotext: Server configuration and capabilities")
         print("")
         print("To start the server, run: plotext-mcp")
+        print("For STDIO transport mode, run: plotext-mcp --stdio")
         return
     
     try:
         from .mcp_server import start_server
-        start_server()
+        start_server(stdio_mode=args.stdio)
     except ImportError as e:
         if "chuk-mcp-server" in str(e):
             print("ERROR: MCP functionality requires chuk-mcp-server")

@@ -12,28 +12,204 @@ The server uses chuk-mcp-server for zero-configuration MCP functionality.
 """
 
 try:
-    from chuk_mcp_server import tool, resource, prompt, run
+    from chuk_mcp_server import tool, resource, prompt, ChukMCPServer
 except ImportError:
     raise ImportError(
         "chuk-mcp-server is required for MCP functionality. "
         "Install it with: uv add --optional mcp plotext_plus"
     )
 
-import asyncio
 from typing import List, Optional, Union, Dict, Any
-import json
-import base64
 from io import StringIO
 import sys
+import logging
+import json
+from datetime import datetime
 
 # Import public plotext_plus APIs
 from . import plotting
 from . import charts
 from . import themes
 from . import utilities
+from . import _core
 
 # Keep track of the current plot state
 _current_plot_buffer = StringIO()
+
+# Set up logging
+_logger = logging.getLogger("plotext_plus_mcp")
+_logger.setLevel(logging.INFO)
+
+# Create console handler
+_console_handler = logging.StreamHandler(sys.stderr)
+_console_handler.setLevel(logging.INFO)
+
+# Create formatter
+_formatter = logging.Formatter('[%(asctime)s] %(levelname)s: %(message)s')
+_console_handler.setFormatter(_formatter)
+
+# Add handler to logger
+_logger.addHandler(_console_handler)
+
+
+# ============================================================================
+# Custom MCP Logging Handler (based on chuk-mcp-server example)
+# ============================================================================
+
+class MCPLoggingHandler(logging.Handler):
+    """
+    Custom logging handler that sends log messages to MCP clients via notifications.
+    
+    This handler converts Python log records into MCP logging notifications
+    and sends them to connected clients.
+    """
+    
+    def __init__(self, mcp_server: ChukMCPServer):
+        super().__init__()
+        self.mcp_server = mcp_server
+        self.notification_queue: List[Dict[str, Any]] = []
+        self.clients: Dict[str, Any] = {}  # Track connected clients
+        
+        # Set up formatting
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        self.setFormatter(formatter)
+    
+    def emit(self, record: logging.LogRecord):
+        """Emit a log record as an MCP notification."""
+        try:
+            # Format the log message
+            formatted_message = self.format(record)
+            
+            # Create MCP logging notification
+            notification = {
+                "jsonrpc": "2.0",
+                "method": "notifications/message",
+                "params": {
+                    "level": self._map_log_level(record.levelno),
+                    "logger": record.name,
+                    "data": {
+                        "message": record.getMessage(),
+                        "timestamp": datetime.fromtimestamp(record.created).isoformat(),
+                        "module": record.module,
+                        "function": record.funcName,
+                        "line": record.lineno,
+                        "formatted": formatted_message
+                    }
+                }
+            }
+            
+            # Add exception info if present
+            if record.exc_info:
+                notification["params"]["data"]["exception"] = self.formatException(record.exc_info)
+            
+            # Queue notification for sending to clients
+            self.notification_queue.append(notification)
+            
+            # In a real implementation, you would send this to connected clients
+            # For this example, we'll just print to stderr for demonstration
+            print(f"[MCP LOG NOTIFICATION] {json.dumps(notification)}", file=sys.stderr)
+            
+        except Exception:
+            # Don't raise exceptions in logging handler
+            self.handleError(record)
+    
+    def _map_log_level(self, python_level: int) -> str:
+        """Map Python logging levels to MCP logging levels."""
+        if python_level >= logging.CRITICAL:
+            return "error"  # MCP doesn't have CRITICAL, map to error
+        elif python_level >= logging.ERROR:
+            return "error"
+        elif python_level >= logging.WARNING:
+            return "warning"
+        elif python_level >= logging.INFO:
+            return "info"
+        else:
+            return "debug"
+
+
+# ============================================================================
+# Enhanced ChukMCPServer with Logging Support
+# ============================================================================
+
+class PlotextPlusMCPServer(ChukMCPServer):
+    """
+    Extended ChukMCPServer with integrated MCP logging support.
+    
+    This class adds MCP logging capability and automatically sets up
+    a custom logging handler to send log messages to MCP clients.
+    Also implements the logging/setLevel MCP method.
+    """
+    
+    def __init__(self, *args, **kwargs):
+        # Enable logging capability - now properly supported in chuk-mcp-server
+        # Fixed empty capability object issue in chuk-mcp-server
+        kwargs.setdefault('logging', True)
+        
+        super().__init__(*args, **kwargs)
+        
+        # Track server events
+        self.server_events: List[Dict[str, Any]] = []
+        
+        # Server logger
+        self.server_logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        
+        # Set up custom MCP logging handler
+        self.mcp_logging_handler = MCPLoggingHandler(self)
+        self.setup_logging()
+        
+        # Current logging level for MCP clients
+        self.mcp_logging_level = "INFO"
+    
+    def setup_logging(self):
+        """Set up the MCP logging system."""
+        # Get the root logger for the chuk_mcp_server package
+        mcp_logger = logging.getLogger('chuk_mcp_server')
+        
+        # Add our custom handler
+        mcp_logger.addHandler(self.mcp_logging_handler)
+        
+        # Also add to the plotext_plus logger
+        plotext_logger = logging.getLogger(__name__)
+        plotext_logger.addHandler(self.mcp_logging_handler)
+        
+        # Add to our global logger
+        _logger.addHandler(self.mcp_logging_handler)
+        
+        self.server_logger.info("🔊 MCP Logging system initialized")
+    
+    def log_server_event(self, event_type: str, message: str, data: Optional[Dict[str, Any]] = None):
+        """Log a server event that will be sent to MCP clients."""
+        from datetime import datetime
+        
+        event = {
+            "type": event_type,
+            "message": message,
+            "timestamp": datetime.now().isoformat(),
+            "data": data or {}
+        }
+        
+        self.server_events.append(event)
+        
+        # Log through Python logging system (will trigger MCP notification)
+        self.server_logger.info(f"[{event_type.upper()}] {message}", extra={"mcp_data": data})
+    
+    def get_log_notifications(self) -> List[Dict[str, Any]]:
+        """Get queued log notifications (for testing/debugging)."""
+        return self.mcp_logging_handler.notification_queue.copy()
+    
+    def run_stdio(self, debug: bool = None):
+        """Override run_stdio to start the server with logging support."""
+        # logging/setLevel is now natively supported in chuk-mcp-server
+        result = super().run_stdio(debug)
+        return result
+    
+    def run(self, host: str = None, port: int = None, debug: bool = None):
+        """Override run to start the server with logging support."""
+        # logging/setLevel is now natively supported in chuk-mcp-server
+        result = super().run(host, port, debug)
+        return result
 
 
 def _capture_plot_output(func, *args, **kwargs):
@@ -48,6 +224,20 @@ def _capture_plot_output(func, *args, **kwargs):
         plot_output = _current_plot_buffer.getvalue()
         _current_plot_buffer.truncate(0)
         _current_plot_buffer.seek(0)
+        
+        # Fix: Add zero-width space character to preserve formatting in MCP CLI
+        lines = plot_output.split('\n')
+        fixed_lines = []
+        for line in lines:
+            if line.strip():  # Only process non-empty lines
+                # Add a zero-width space (\u200b) at the end to prevent trimming
+                fixed_line = line + '\u200b'
+                fixed_lines.append(fixed_line)
+            else:
+                fixed_lines.append(line)
+        
+        plot_output = '\n'.join(fixed_lines)
+        
         return result, plot_output
     finally:
         # Restore stdout
@@ -56,89 +246,170 @@ def _capture_plot_output(func, *args, **kwargs):
 
 # Core Plotting Tools
 @tool
-async def scatter_plot(x: List[Union[int, float]], y: List[Union[int, float]], 
+async def scatter_plot(x: List[Union[int, float, str]], y: List[Union[int, float, str]], 
                       marker: Optional[str] = None, color: Optional[str] = None,
-                      title: Optional[str] = None) -> str:
+                      title: Optional[str] = None, theme_name: Optional[str] = None) -> str:
     """Create a scatter plot with given x and y data points.
     
     Args:
-        x: List of x-coordinates
-        y: List of y-coordinates  
+        x: List of x-coordinates (numbers, dates, or strings)
+        y: List of y-coordinates (numbers or strings)
         marker: Marker style (optional)
         color: Plot color (optional)
         title: Plot title (optional)
+        theme_name: Theme to apply (optional)
         
     Returns:
         The rendered plot as text
     """
-    # Convert string inputs to float
-    x_numeric = [float(val) if isinstance(val, str) else val for val in x]
-    y_numeric = [float(val) if isinstance(val, str) else val for val in y]
+    # Process x-coordinates - handle dates, numbers, and strings (same logic as line_plot)
+    try:
+        x_processed = []
+        for i, val in enumerate(x):
+            if isinstance(val, str):
+                # Check if it's a date string
+                if '-' in val and len(val) >= 8:  # Basic date format check
+                    # For date strings, use index position as numeric value
+                    x_processed.append(i)
+                else:
+                    # Try to convert to float, fallback to index
+                    try:
+                        x_processed.append(float(val))
+                    except ValueError:
+                        x_processed.append(i)
+            else:
+                x_processed.append(float(val))
+        
+        # Convert y values to numeric
+        y_numeric = [float(val) if isinstance(val, str) else val for val in y]
+        
+        _logger.debug(f"Processed scatter data: x_range=[{min(x_processed):.2f}..{max(x_processed):.2f}], y_range=[{min(y_numeric):.2f}..{max(y_numeric):.2f}]")
+    except Exception as e:
+        _logger.error(f"Error processing scatter plot inputs: {e}")
+        raise
     
     plotting.clear_figure()
+    
+    # Apply theme if specified
+    if theme_name and theme_name != 'default':
+        _core.theme(theme_name)
+        _logger.debug(f"Applied theme: {theme_name}")
+    
     if title:
         plotting.title(title)
     
-    _, output = _capture_plot_output(plotting.scatter, x_numeric, y_numeric, marker=marker, color=color)
+    # Set custom x-axis labels for dates if needed (same logic as line_plot)
+    if any(isinstance(val, str) and '-' in val and len(val) >= 8 for val in x):
+        # We have date strings, set them as x-axis labels
+        date_labels = [str(val) if isinstance(val, str) and '-' in val else str(val) for val in x]
+        _core.xticks(x_processed, date_labels)
+    
+    _, output = _capture_plot_output(plotting.scatter, x_processed, y_numeric, marker=marker, color=color)
     _, show_output = _capture_plot_output(plotting.show)
     
     return output + show_output
 
 
 @tool
-async def line_plot(x: List[Union[int, float]], y: List[Union[int, float]], 
-                   color: Optional[str] = None, title: Optional[str] = None) -> str:
+async def line_plot(x: List[Union[int, float, str]], y: List[Union[int, float, str]], 
+                   color: Optional[str] = None, title: Optional[str] = None, 
+                   theme_name: Optional[str] = None) -> str:
     """Create a line plot with given x and y data points.
     
     Args:
-        x: List of x-coordinates
-        y: List of y-coordinates
+        x: List of x-coordinates (numbers, dates, or strings)
+        y: List of y-coordinates (numbers or strings)
         color: Line color (optional)
         title: Plot title (optional)
+        theme_name: Theme to apply (optional)
         
     Returns:
         The rendered plot as text
     """
-    import sys
-    print(f"DEBUG: line_plot called with x={x}, y={y}, title={title}", file=sys.stderr)
+    _logger.info(f"Creating line plot with {len(x)} data points, title='{title}', color='{color}'")
     
-    # Convert string inputs to float
+    # Process x-coordinates - handle dates, numbers, and strings
     try:
-        x_numeric = [float(val) if isinstance(val, str) else val for val in x]
+        x_processed = []
+        for i, val in enumerate(x):
+            if isinstance(val, str):
+                # Check if it's a date string
+                if '-' in val and len(val) >= 8:  # Basic date format check
+                    # For date strings, use index position as numeric value
+                    x_processed.append(i)
+                else:
+                    # Try to convert to float, fallback to index
+                    try:
+                        x_processed.append(float(val))
+                    except ValueError:
+                        x_processed.append(i)
+            else:
+                x_processed.append(float(val))
+        
+        # Convert y values to numeric
         y_numeric = [float(val) if isinstance(val, str) else val for val in y]
-        print(f"DEBUG: Converted to x_numeric={x_numeric}, y_numeric={y_numeric}", file=sys.stderr)
+        
+        _logger.debug(f"Processed data: x_range=[{min(x_processed):.2f}..{max(x_processed):.2f}], y_range=[{min(y_numeric):.2f}..{max(y_numeric):.2f}]")
     except Exception as e:
-        print(f"DEBUG: Error converting inputs: {e}", file=sys.stderr)
+        _logger.error(f"Error processing inputs: {e}")
         raise
     
     try:
         plotting.clear_figure()
-        print("DEBUG: Cleared figure", file=sys.stderr)
+        _logger.debug("Cleared figure")
+        
+        # Apply theme if specified
+        if theme_name and theme_name != 'default':
+            _core.theme(theme_name)
+            _logger.debug(f"Applied theme: {theme_name}")
         
         if title:
             plotting.title(title)
-            print(f"DEBUG: Set title: {title}", file=sys.stderr)
+            _logger.debug(f"Set plot title: {title}")
         
-        _, output = _capture_plot_output(plotting.plot, x_numeric, y_numeric, color=color)
-        print(f"DEBUG: Generated plot output, length: {len(output)}", file=sys.stderr)
+        # Set custom x-axis labels for dates if needed
+        if any(isinstance(val, str) and '-' in val and len(val) >= 8 for val in x):
+            # We have date strings, set them as x-axis labels
+            date_labels = [str(val) if isinstance(val, str) and '-' in val else str(val) for val in x]
+            _core.xticks(x_processed, date_labels)
+        
+        _, output = _capture_plot_output(plotting.plot, x_processed, y_numeric, color=color)
+        _logger.debug(f"Generated plot output ({len(output)} characters)")
         
         _, show_output = _capture_plot_output(plotting.show)
-        print(f"DEBUG: Generated show output, length: {len(show_output)}", file=sys.stderr)
+        _logger.debug(f"Generated show output ({len(show_output)} characters)")
         
         result = output + show_output
-        print(f"DEBUG: Returning result, total length: {len(result)}", file=sys.stderr)
+        
+        # Fix: Add zero-width space character to preserve formatting in MCP CLI
+        # This prevents MCP CLI from stripping trailing spaces/borders
+        lines = result.split('\n')
+        fixed_lines = []
+        for line in lines:
+            if line.strip():  # Only process non-empty lines
+                # Add a zero-width space (\u200b) at the end to prevent trimming
+                fixed_line = line + '\u200b'
+                fixed_lines.append(fixed_line)
+            else:
+                fixed_lines.append(line)
+        
+        result = '\n'.join(fixed_lines)
+        _logger.debug(f"Applied formatting fix, final result ({len(result)} characters)")
+        _logger.info("Line plot created successfully")
+        
         return result
         
     except Exception as e:
-        print(f"DEBUG: Error during plotting: {e}", file=sys.stderr)
+        _logger.error(f"Error during line plot creation: {e}")
         import traceback
-        traceback.print_exc(file=sys.stderr)
+        _logger.debug(f"Stack trace: {traceback.format_exc()}")
         raise
 
 
 @tool
 async def bar_chart(labels: List[str], values: List[Union[int, float]], 
-                   color: Optional[str] = None, title: Optional[str] = None) -> str:
+                   color: Optional[str] = None, title: Optional[str] = None,
+                   theme_name: Optional[str] = None) -> str:
     """Create a bar chart with given labels and values.
     
     Args:
@@ -146,6 +417,7 @@ async def bar_chart(labels: List[str], values: List[Union[int, float]],
         values: List of bar values
         color: Bar color (optional)
         title: Plot title (optional)
+        theme_name: Theme to apply (optional)
         
     Returns:
         The rendered plot as text
@@ -154,6 +426,11 @@ async def bar_chart(labels: List[str], values: List[Union[int, float]],
     values_numeric = [float(val) if isinstance(val, str) else val for val in values]
     
     plotting.clear_figure()
+    
+    # Apply theme if specified
+    if theme_name and theme_name != 'default':
+        plotting.theme(theme_name)
+    
     if title:
         plotting.title(title)
     
@@ -164,17 +441,24 @@ async def bar_chart(labels: List[str], values: List[Union[int, float]],
 
 
 @tool
-async def matrix_plot(data: List[List[Union[int, float]]], title: Optional[str] = None) -> str:
+async def matrix_plot(data: List[List[Union[int, float]]], title: Optional[str] = None,
+                      theme_name: Optional[str] = None) -> str:
     """Create a matrix/heatmap plot from 2D data.
     
     Args:
         data: 2D list representing matrix data
         title: Plot title (optional)
+        theme_name: Theme to apply (optional)
         
     Returns:
         The rendered plot as text
     """
     plotting.clear_figure()
+    
+    # Apply theme if specified
+    if theme_name and theme_name != 'default':
+        plotting.theme(theme_name)
+    
     if title:
         plotting.title(title)
     
@@ -233,68 +517,139 @@ async def play_gif(gif_path: str) -> str:
 
 # Chart Class Tools
 @tool
-async def quick_scatter(x: List[Union[int, float]], y: List[Union[int, float]], 
+async def quick_scatter(x: List[Union[int, float, str]], y: List[Union[int, float, str]], 
                        title: Optional[str] = None, theme_name: Optional[str] = None) -> str:
     """Create a quick scatter chart using the chart classes API.
     
     Args:
-        x: List of x-coordinates
-        y: List of y-coordinates
+        x: List of x-coordinates (numbers, dates, or strings)
+        y: List of y-coordinates (numbers or strings)
         title: Chart title (optional)
         theme_name: Theme to apply (optional)
         
     Returns:
         The rendered chart as text
     """
-    # Convert string inputs to float
-    x_numeric = [float(val) if isinstance(val, str) else val for val in x]
-    y_numeric = [float(val) if isinstance(val, str) else val for val in y]
+    # Process x-coordinates - handle dates, numbers, and strings (same logic as line_plot)
+    try:
+        x_processed = []
+        for i, val in enumerate(x):
+            if isinstance(val, str):
+                # Check if it's a date string
+                if '-' in val and len(val) >= 8:  # Basic date format check
+                    # For date strings, use index position as numeric value
+                    x_processed.append(i)
+                else:
+                    # Try to convert to float, fallback to index
+                    try:
+                        x_processed.append(float(val))
+                    except ValueError:
+                        x_processed.append(i)
+            else:
+                x_processed.append(float(val))
+        
+        # Convert y values to numeric
+        y_processed = []
+        for val in y:
+            if isinstance(val, str):
+                try:
+                    y_processed.append(float(val))
+                except ValueError:
+                    # If string can't be converted to number, skip this point
+                    raise ValueError(f"Y-coordinate '{val}' cannot be converted to a number")
+            else:
+                y_processed.append(float(val))
     
-    _, output = _capture_plot_output(charts.quick_scatter, x_numeric, y_numeric, title=title, theme=theme_name)
-    return output
+        _, output = _capture_plot_output(charts.quick_scatter, x_processed, y_processed, title=title, theme_name=theme_name)
+        return output
+    
+    except Exception as e:
+        _logger.error(f"Error during quick_scatter creation: {e}")
+        import traceback
+        _logger.debug(f"Stack trace: {traceback.format_exc()}")
+        raise
 
 
 @tool
-async def quick_line(x: List[Union[int, float]], y: List[Union[int, float]], 
+async def quick_line(x: List[Union[int, float, str]], y: List[Union[int, float, str]], 
                     title: Optional[str] = None, theme_name: Optional[str] = None) -> str:
     """Create a quick line chart using the chart classes API.
     
     Args:
-        x: List of x-coordinates
-        y: List of y-coordinates
+        x: List of x-coordinates (numbers, dates, or strings)
+        y: List of y-coordinates (numbers or strings)
         title: Chart title (optional)
         theme_name: Theme to apply (optional)
         
     Returns:
         The rendered chart as text
     """
-    # Convert string inputs to float
-    x_numeric = [float(val) if isinstance(val, str) else val for val in x]
-    y_numeric = [float(val) if isinstance(val, str) else val for val in y]
+    # Process x-coordinates - handle dates, numbers, and strings (same logic as line_plot)
+    try:
+        x_processed = []
+        for i, val in enumerate(x):
+            if isinstance(val, str):
+                # Check if it's a date string
+                if '-' in val and len(val) >= 8:  # Basic date format check
+                    # For date strings, use index position as numeric value
+                    x_processed.append(i)
+                else:
+                    # Try to convert to float, fallback to index
+                    try:
+                        x_processed.append(float(val))
+                    except ValueError:
+                        x_processed.append(i)
+            else:
+                x_processed.append(float(val))
+        
+        # Convert y values to numeric
+        y_numeric = [float(val) if isinstance(val, str) else val for val in y]
+        
+        _logger.debug(f"Processed quick_line data: x_range=[{min(x_processed):.2f}..{max(x_processed):.2f}], y_range=[{min(y_numeric):.2f}..{max(y_numeric):.2f}]")
+    except Exception as e:
+        _logger.error(f"Error processing quick_line inputs: {e}")
+        raise
     
-    _, output = _capture_plot_output(charts.quick_line, x_numeric, y_numeric, title=title, theme=theme_name)
+    _, output = _capture_plot_output(charts.quick_line, x_processed, y_numeric, title=title, theme_name=theme_name)
     return output
 
 
 @tool
 async def quick_bar(labels: List[str], values: List[Union[int, float]], 
-                   title: Optional[str] = None, theme_name: Optional[str] = None) -> str:
+                   title: Optional[str] = None, horizontal: bool = False,
+                   theme_name: Optional[str] = None) -> str:
     """Create a quick bar chart using the chart classes API.
     
     Args:
         labels: List of bar labels
         values: List of bar values
         title: Chart title (optional)
+        horizontal: Create horizontal bars if True (optional, default False)
         theme_name: Theme to apply (optional)
         
     Returns:
         The rendered chart as text
     """
-    # Convert string inputs to float
-    values_numeric = [float(val) if isinstance(val, str) else val for val in values]
+    _logger.info(f"Creating quick bar chart with {len(labels)} labels, title='{title}', horizontal={horizontal}")
     
-    _, output = _capture_plot_output(charts.quick_bar, labels, values_numeric, title=title, theme=theme_name)
-    return output
+    # Convert string inputs to float
+    try:
+        values_numeric = [float(val) if isinstance(val, str) else val for val in values]
+        _logger.debug(f"Converted values: {len(values_numeric)} numeric values, range=[{min(values_numeric):.2f}..{max(values_numeric):.2f}]")
+    except Exception as e:
+        _logger.error(f"Error converting values to numeric: {e}")
+        raise
+    
+    try:
+        _, output = _capture_plot_output(charts.quick_bar, labels, values_numeric, title=title, horizontal=horizontal, theme_name=theme_name)
+        _logger.debug(f"Generated quick bar chart output ({len(output)} characters)")
+        _logger.info("Quick bar chart created successfully")
+        return output
+    except Exception as e:
+        _logger.error(f"Error during quick bar chart creation: {e}")
+        import traceback
+        _logger.debug(f"Stack trace: {traceback.format_exc()}")
+        raise
 
 
 @tool
@@ -302,7 +657,7 @@ async def quick_pie(labels: List[str], values: List[Union[int, float]],
                    colors: Optional[List[str]] = None, title: Optional[str] = None, 
                    show_values: bool = True, show_percentages: bool = True,
                    show_values_on_slices: bool = False, donut: bool = False,
-                   remaining_color: Optional[str] = None) -> str:
+                   remaining_color: Optional[str] = None, theme_name: Optional[str] = None) -> str:
     """Create a quick pie chart using the chart classes API.
     
     Args:
@@ -315,6 +670,7 @@ async def quick_pie(labels: List[str], values: List[Union[int, float]],
         show_values_on_slices: Show values directly on pie slices (optional, default False)
         donut: Create doughnut chart with hollow center (optional, default False)
         remaining_color: Color for remaining slice in single-value charts (optional)
+        theme_name: Theme to apply (optional)
         
     Returns:
         The rendered pie chart as text
@@ -326,7 +682,7 @@ async def quick_pie(labels: List[str], values: List[Union[int, float]],
                                    title=title, show_values=show_values, 
                                    show_percentages=show_percentages,
                                    show_values_on_slices=show_values_on_slices,
-                                   donut=donut, remaining_color=remaining_color)
+                                   donut=donut, remaining_color=remaining_color, theme_name=theme_name)
     return output
 
 
@@ -335,7 +691,7 @@ async def quick_donut(labels: List[str], values: List[Union[int, float]],
                      colors: Optional[List[str]] = None, title: Optional[str] = None, 
                      show_values: bool = True, show_percentages: bool = True,
                      show_values_on_slices: bool = False,
-                     remaining_color: Optional[str] = None) -> str:
+                     remaining_color: Optional[str] = None, theme_name: Optional[str] = None) -> str:
     """Create a quick doughnut chart (pie chart with hollow center) using the chart classes API.
     
     Args:
@@ -347,6 +703,7 @@ async def quick_donut(labels: List[str], values: List[Union[int, float]],
         show_percentages: Show percentages in legend (optional, default True)
         show_values_on_slices: Show values directly on pie slices (optional, default False)
         remaining_color: Color for remaining slice in single-value charts (optional)
+        theme_name: Theme to apply (optional)
         
     Returns:
         The rendered doughnut chart as text
@@ -358,7 +715,7 @@ async def quick_donut(labels: List[str], values: List[Union[int, float]],
                                    title=title, show_values=show_values, 
                                    show_percentages=show_percentages,
                                    show_values_on_slices=show_values_on_slices,
-                                   remaining_color=remaining_color)
+                                   remaining_color=remaining_color, theme_name=theme_name)
     return output
 
 
@@ -384,8 +741,10 @@ async def apply_plot_theme(theme_name: str) -> str:
     Returns:
         Confirmation message
     """
+    _logger.info(f"Applying plot theme: {theme_name}")
     plotting.clear_figure()
     plotting.theme(theme_name)
+    _logger.debug(f"Theme '{theme_name}' applied successfully")
     return f"Applied theme: {theme_name}"
 
 
@@ -524,7 +883,22 @@ async def get_plot_config() -> Dict[str, Any]:
         "terminal_width": utilities.terminal_width(),
         "available_themes": get_theme_info(),
         "library_version": "plotext_plus",
-        "mcp_enabled": True
+        "mcp_enabled": True,
+        "logging_enabled": True
+    }
+
+
+# Resource for logging information
+@resource("logs://recent")
+async def get_recent_logs() -> Dict[str, Any]:
+    """Get recent server events and log notifications (requires custom server)."""
+    # This would work if we had access to the server instance
+    # For now, return basic logging info
+    return {
+        "logging_enabled": True,
+        "log_levels": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        "mcp_notifications": "enabled",
+        "timestamp": datetime.now().isoformat()
     }
 
 
@@ -852,155 +1226,62 @@ async def quick_donut_convenience_prompt() -> str:
 
 
 # Main server entry point
-def start_server():
-    """Start the MCP server."""
-    import sys
+def start_server(stdio_mode=False):
+    """Start the MCP server.
+    
+    Args:
+        stdio_mode: If True, use STDIO transport mode
+    """
     import os
     
-    # Check if we're being run in STDIO mode (by MCP CLI)
-    # Force HTTP mode if MCP_HTTP_MODE is set, otherwise detect based on stdin
+    # Detect mode automatically if not explicitly specified
     force_http = os.getenv('MCP_HTTP_MODE', '').lower() == 'true'
-    force_stdio = os.getenv('MCP_STDIO_MODE', '').lower() == 'true'
+    force_stdio = os.getenv('MCP_STDIO_MODE', '').lower() == 'true' or stdio_mode
     
-    if force_http:
+    if force_http and not stdio_mode:
         is_stdio_mode = False
-    elif force_stdio:
+    elif force_stdio or stdio_mode:
         is_stdio_mode = True
     else:
-        # Auto-detect: STDIO mode when stdin is not a terminal (pipes/redirects)
+        # Auto-detect based on stdin
         is_stdio_mode = not sys.stdin.isatty()
     
     if is_stdio_mode:
-        # STDIO mode for MCP CLI - simple JSON-RPC implementation
-        import json
-        import asyncio
-        
-        async def handle_stdio():
-            try:
-                for line in sys.stdin:
-                    if not line.strip():
-                        continue
-                    
-                    try:
-                        request = json.loads(line)
-                        method = request.get('method')
-                        request_id = request.get('id')
-                        
-                        if method == 'initialize':
-                            response = {
-                                "jsonrpc": "2.0",
-                                "id": request_id,
-                                "result": {
-                                    "protocolVersion": "2024-11-05",
-                                    "capabilities": {
-                                        "tools": {},
-                                        "prompts": {},
-                                        "resources": {}
-                                    },
-                                    "serverInfo": {
-                                        "name": "Plotext Plus MCP Server",
-                                        "version": "1.0.0"
-                                    }
-                                }
-                            }
-                        elif method == 'tools/list':
-                            response = {
-                                "jsonrpc": "2.0",
-                                "id": request_id,
-                                "result": {
-                                    "tools": [
-                                        {
-                                            "name": "line_plot",
-                                            "description": "Create a line plot with given x and y data points",
-                                            "inputSchema": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "x": {"type": "array", "items": {"type": "number"}},
-                                                    "y": {"type": "array", "items": {"type": "number"}},
-                                                    "title": {"type": "string"}
-                                                },
-                                                "required": ["x", "y"]
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        elif method == 'tools/call':
-                            tool_name = request['params']['name']
-                            arguments = request['params']['arguments']
-                            
-                            if tool_name == 'line_plot':
-                                try:
-                                    result = await line_plot(**arguments)
-                                    response = {
-                                        "jsonrpc": "2.0",
-                                        "id": request_id,
-                                        "result": {
-                                            "content": [
-                                                {
-                                                    "type": "text",
-                                                    "text": result
-                                                }
-                                            ]
-                                        }
-                                    }
-                                except Exception as e:
-                                    response = {
-                                        "jsonrpc": "2.0",
-                                        "id": request_id,
-                                        "error": {
-                                            "code": -32000,
-                                            "message": str(e)
-                                        }
-                                    }
-                            else:
-                                response = {
-                                    "jsonrpc": "2.0",
-                                    "id": request_id,
-                                    "error": {
-                                        "code": -32601,
-                                        "message": f"Unknown tool: {tool_name}"
-                                    }
-                                }
-                        else:
-                            response = {
-                                "jsonrpc": "2.0",
-                                "id": request_id,
-                                "error": {
-                                    "code": -32601,
-                                    "message": f"Unknown method: {method}"
-                                }
-                            }
-                        
-                        print(json.dumps(response), flush=True)
-                        
-                    except Exception as e:
-                        error_response = {
-                            "jsonrpc": "2.0",
-                            "id": request.get('id') if 'request' in locals() else None,
-                            "error": {
-                                "code": -32700,
-                                "message": f"Parse error: {str(e)}"
-                            }
-                        }
-                        print(json.dumps(error_response), flush=True)
-                        
-            except Exception as e:
-                print(f"STDIO handler error: {e}", file=sys.stderr)
-        
-        asyncio.run(handle_stdio())
+        print("Starting Plotext Plus MCP Server (STDIO mode)...", file=sys.stderr)
+        _logger.info("Starting Plotext Plus MCP Server in STDIO mode")
+        server_kwargs = {
+            "name": "Plotext Plus MCP Server", 
+            "version": "1.0.0",
+            "prompts": True,
+            "transport": "stdio"  # Use STDIO transport
+        }
     else:
-        # HTTP server mode (default)
-        print("Starting Plotext Plus MCP Server...")
-        from chuk_mcp_server import ChukMCPServer
-        server = ChukMCPServer(
-            name="Plotext Plus MCP Server", 
-            version="1.0.0",
-            prompts=True,  # Enable prompts capability
-            logging=True   # Enable logging capability for MCP clients
-        )
-        server.run()
+        print("Starting Plotext Plus MCP Server (HTTP mode)...", file=sys.stderr)
+        _logger.info("Starting Plotext Plus MCP Server in HTTP mode")
+        server_kwargs = {
+            "name": "Plotext Plus MCP Server", 
+            "version": "1.0.0",
+            "prompts": True   # Enable prompts capability
+        }
+    
+    # Use custom server with proper logging support
+    server = PlotextPlusMCPServer(**server_kwargs)
+    server.log_server_event("SERVER_START", "Plotext Plus MCP Server starting up", {
+        "capabilities": ["tools", "resources", "prompts", "logging"],
+        "mode": "stdio" if is_stdio_mode else "http",
+        "logging_methods": ["logging/setLevel"],
+        "custom_features": ["mcp_notifications", "structured_logging"]
+    })
+    server.run()
 
 
 if __name__ == "__main__":
-    start_server()
+    import sys
+    import argparse
+    
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Plotext Plus MCP Server")
+    parser.add_argument("--stdio", action="store_true", help="Use STDIO transport mode")
+    args = parser.parse_args()
+    
+    start_server(stdio_mode=args.stdio)

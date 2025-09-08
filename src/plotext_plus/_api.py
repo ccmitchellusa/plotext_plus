@@ -155,6 +155,10 @@ class Chart:
         # Clear any existing plot data
         _core.clear_figure()
         
+        # Apply theme if specified
+        if self._config['theme'] and self._config['theme'] != 'default':
+            _core.theme(self._config['theme'])
+        
         # Configure plot settings
         if self._config['title']:
             _core.title(self._config['title'])
@@ -184,10 +188,8 @@ class Chart:
                     label=data_item['label']
                 )
             elif data_item['type'] == 'bar':
-                if data_item['horizontal']:
-                    _core.horizontal_bar(data_item['labels'], data_item['values'], color=data_item['color'])
-                else:
-                    _core.bar(data_item['labels'], data_item['values'], color=data_item['color'])
+                orientation = 'horizontal' if data_item['horizontal'] else 'vertical'
+                _core.bar(data_item['labels'], data_item['values'], color=data_item['color'], orientation=orientation)
             elif data_item['type'] == 'pie':
                 _core.pie(
                     data_item['labels'], 
@@ -754,7 +756,7 @@ class PlotextAPI:
         return Chart(use_banners, banner_title)
     
     @staticmethod
-    def quick_scatter(x, y, title=None, xlabel=None, ylabel=None, use_banners=False, banner_title=None):
+    def quick_scatter(x, y, title=None, xlabel=None, ylabel=None, theme_name=None, use_banners=False, banner_title=None):
         """Quickly create and display a scatter plot"""
         chart = Chart(use_banners, banner_title)
         chart.scatter(x, y)
@@ -764,11 +766,13 @@ class PlotextAPI:
             chart.xlabel(xlabel)
         if ylabel:
             chart.ylabel(ylabel)
+        if theme_name:
+            chart.theme(theme_name)
         chart.show()
         return chart
     
     @staticmethod
-    def quick_line(x, y, title=None, xlabel=None, ylabel=None, use_banners=False, banner_title=None):
+    def quick_line(x, y, title=None, xlabel=None, ylabel=None, theme_name=None, use_banners=False, banner_title=None):
         """Quickly create and display a line plot"""
         chart = Chart(use_banners, banner_title)
         chart.line(x, y)
@@ -778,13 +782,15 @@ class PlotextAPI:
             chart.xlabel(xlabel)
         if ylabel:
             chart.ylabel(ylabel)
+        if theme_name:
+            chart.theme(theme_name)
         chart.show()
         return chart
     
     @staticmethod
-    def quick_bar(labels, values, title=None, horizontal=False, use_banners=False, banner_title=None):
+    def quick_bar(labels, values, title=None, horizontal=False, use_banners=False, banner_title=None, theme_name=None):
         """Quickly create and display a bar chart"""
-        chart = Chart(use_banners, banner_title)
+        chart = Chart(use_banners, banner_title, theme_name)
         chart.bar(labels, values, horizontal=horizontal)
         if title:
             chart.title(title)
@@ -793,9 +799,9 @@ class PlotextAPI:
     
     @staticmethod 
     def quick_pie(labels, values, colors=None, title=None, use_banners=False, banner_title=None, 
-                  show_values=True, show_percentages=True, show_values_on_slices=False, donut=False, remaining_color=None):
+                  show_values=True, show_percentages=True, show_values_on_slices=False, donut=False, remaining_color=None, theme_name=None):
         """Quickly create and display a pie chart"""
-        chart = Chart(use_banners, banner_title)
+        chart = Chart(use_banners, banner_title, theme_name)
         chart.pie(labels, values, colors=colors, show_values=show_values, show_percentages=show_percentages, show_values_on_slices=show_values_on_slices, donut=donut, remaining_color=remaining_color)
         if title:
             chart.title(title)
@@ -804,11 +810,11 @@ class PlotextAPI:
     
     @staticmethod
     def quick_donut(labels, values, colors=None, title=None, use_banners=False, banner_title=None, 
-                    show_values=True, show_percentages=True, show_values_on_slices=False, remaining_color=None):
+                    show_values=True, show_percentages=True, show_values_on_slices=False, remaining_color=None, theme_name=None):
         """Quickly create and display a doughnut chart"""
         return api.quick_pie(labels, values, colors=colors, title=title, use_banners=use_banners, 
                            banner_title=banner_title, show_values=show_values, 
-                           show_percentages=show_percentages, show_values_on_slices=show_values_on_slices, donut=True, remaining_color=remaining_color)
+                           show_percentages=show_percentages, show_values_on_slices=show_values_on_slices, donut=True, remaining_color=remaining_color, theme_name=theme_name)
     
     @staticmethod
     def enable_banners(enabled=True, default_title="Plotext Chart"):
