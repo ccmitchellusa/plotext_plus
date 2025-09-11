@@ -98,7 +98,7 @@ plt.test()  # Downloads and displays a test image, then removes it
 - add heatmap plot, as requested in issue [Issue 143](https://github.com/ccmitchellusa/plotext_plus/issues/143)
 - add OHLC date time plot, as requested in issue [Issue 149](https://github.com/ccmitchellusa/plotext_plus/issues/149)
 - add network graphs, as requested in issue [Issue 160](https://github.com/ccmitchellusa/plotext_plus/issues/160)
-- integrate `colorize()` in `text()` and `indicator()` or or any string `label` parameter, as requested in issue [Issue 144](https://github.com/ccmitchellusa/plotext_plus/issues/144); possible idea: `colorize()` to output a `matrix_class()` object
+- integrate `colorize()` in `text()` and `indicator()` or or any string `label` parameter, as requested in issue [Issue 144](https://github.com/ccmitchellusa/plotext_plus/issues/144); possible idea: `colorize()` to output a `MatrixClass()` object
 - allow simple bar plots in matrix of subplots, as requested in issue [Issue 171](https://github.com/ccmitchellusa/plotext_plus/issues/171); this could be possibly extended to allow images also, rendered with fast parameter set to `True`
 - allow user to decide plot legend position and frame
 - allow clickable plots, as requested in issue [Issue 175](https://github.com/ccmitchellusa/plotext_plus/issues/175); this sounds hard!
@@ -125,7 +125,7 @@ plt.test()  # Downloads and displays a test image, then removes it
 - add matrix plot side bar, to connect intensity level with actual matrix value
 - high resolution markers available on Windows and other rarer terminals (under request and not sure how)
 - add method to optionally set the sizes of a matrix of subplots giving priority to the subplots closer to bottom right edge, instead of upper left ones (as by default)
-- convert the class `matrix_class()`, the engine running the plots, in C++ and connect it to the Python code (not sure how and would appreciate some help on this)
+- convert the class `MatrixClass()`, the engine running the plots, in C++ and connect it to the Python code (not sure how and would appreciate some help on this)
 
 
 ### Internal Conventions

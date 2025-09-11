@@ -260,3 +260,7 @@ plt.theme('professional')
 plt.plot([1,2,3], [1,4,2])
 plt.show()
 ```
+
+## 🛠️ Development & Build System
+
+Plotext+ includes a comprehensive build system with modern tooling. See **[Build Documentation](docs/build.md)** for complete setup, testing, publishing, and deployment instructions.

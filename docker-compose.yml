@@ -1,0 +1,30 @@
+services:
+  plotext-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.mcp
+      args:
+        PYTHON_VERSION: "3.11"
+    image: plotext-plus/mcp:latest
+    container_name: plotext-mcp
+    ports:
+      - "8001:8001"
+    environment:
+      - MCP_PORT=8001
+      - MCP_HOST=0.0.0.0
+      - PYTHONUNBUFFERED=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'

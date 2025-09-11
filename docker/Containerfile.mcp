@@ -1,0 +1,92 @@
+# =============== Builder Stage ===============
+FROM registry.access.redhat.com/ubi9-minimal:9.6-1747218906 AS builder
+LABEL maintainer="Chris Mitchell <chris@ccmitchellusa.com>" \
+      name="plotext-plus/mcp-build" \
+      description="Builder stage for Plotext Plus MCP Server" \
+      version="1.0.9"
+
+# Build arguments
+ARG PYTHON_VERSION=3.11
+
+# Install Python and build dependencies
+RUN microdnf update -y && \
+    microdnf install -y python${PYTHON_VERSION} git && \
+    microdnf clean all && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1
+
+# Copy uv from the uv image
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Build environment configuration
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/venv \
+    UV_PYTHON=/usr/bin/python3
+
+WORKDIR /app
+
+RUN uv venv /venv
+ENV PATH="/venv/bin:$PATH"
+
+# Copy dependency files first for better caching
+COPY uv.lock pyproject.toml ./
+
+# Install dependencies
+RUN uv sync --frozen --no-install-project --no-dev --extra mcp
+
+# Copy the source code and build the package
+COPY . .
+RUN rm -rf /app/.venv && \
+    uv build
+
+# =============== Final Runtime Stage ===============
+FROM registry.access.redhat.com/ubi9-minimal:9.6-1747218906
+LABEL maintainer="Chris Mitchell <chris@ccmitchellusa.com>" \
+      name="plotext-plus/mcp" \
+      description="Plotext Plus MCP Server - Modern terminal plotting with AI integration" \
+      version="1.0.9"
+
+# Build arguments
+ARG PYTHON_VERSION=3.11
+
+# Environment variables
+ENV VIRTUAL_ENV=/venv \
+    PATH="/venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    MCP_PORT=8001 \
+    MCP_HOST=0.0.0.0
+
+# Install Python and required system packages
+RUN microdnf update -y && \
+    microdnf install -y python${PYTHON_VERSION} && \
+    microdnf clean all && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1
+
+# Copy application files from builder
+COPY --from=builder /venv /venv
+COPY --from=builder /app/dist/*.whl /tmp/
+
+# Install the application
+RUN /venv/bin/python3 -m ensurepip --upgrade && \
+    /venv/bin/pip3 install /tmp/*.whl && \
+    rm -rf /tmp/*.whl
+
+# Create directories and update permissions for non-root user
+RUN mkdir -p /app/logs && \
+    chown -R 1001:0 /app && \
+    chmod -R g=u /app
+
+EXPOSE 8001
+
+WORKDIR /app
+
+# Run as non-root user
+USER 1001
+
+# Health check - test MCP server health endpoint
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD python3 -c "import plotext_plus.mcp_server; print('MCP server healthy')" || exit 1
+
+# Run the MCP server
+CMD ["plotext-mcp", "--host", "0.0.0.0", "--port", "8001"]

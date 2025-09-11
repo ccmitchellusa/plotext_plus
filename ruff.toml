@@ -1,0 +1,40 @@
+# Ruff configuration for plotext_plus
+line-length = 88
+target-version = "py311"
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "N",  # pep8-naming
+    "S",  # flake8-bandit
+    "T20", # flake8-print
+    "SIM", # flake8-simplify
+]
+
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "S101",  # use of assert detected
+    "T201",  # print found
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101", "T201", "S311", "F841"]  # Allow assert, print, random, unused vars in tests
+"examples/*" = ["T201", "S311", "F841"]       # Allow print, random, unused vars in examples
+"src/plotext_plus/__init__.py" = ["F403", "F405"]  # Allow star imports in main module for public API
+"src/plotext_plus/_utility.py" = ["F403", "F405"]  # Allow star import from _dict for constants and data
+"src/plotext_plus/_dict.py" = ["F601"]  # Allow duplicate keys for special line plotting braille patterns
+
+[lint.isort]
+known-first-party = ["plotext_plus"]
+force-single-line = true
+
+[format]
+quote-style = "double"
+indent-style = "space"

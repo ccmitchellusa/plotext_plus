@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """
 Plotext Plus MCP Server CLI
@@ -8,8 +7,8 @@ Plotext Plus MCP Server CLI
 Command-line interface for starting the Plotext Plus MCP server.
 """
 
-import sys
 import argparse
+import sys
 
 
 def main():
@@ -18,23 +17,19 @@ def main():
         description="Plotext Plus MCP Server - Terminal plotting for AI clients"
     )
     parser.add_argument(
-        "--version", 
-        action="version", 
-        version="plotext_plus MCP server"
+        "--version", action="version", version="plotext_plus MCP server"
     )
     parser.add_argument(
-        "--info", 
-        action="store_true",
-        help="Show MCP server information"
+        "--info", action="store_true", help="Show MCP server information"
     )
     parser.add_argument(
-        "--stdio", 
+        "--stdio",
         action="store_true",
-        help="Use STDIO transport mode instead of HTTP (requires dev version of chuk-mcp-server)"
+        help="Use STDIO transport mode instead of HTTP (requires dev version of chuk-mcp-server)",
     )
-    
+
     args = parser.parse_args()
-    
+
     if args.info:
         print("Plotext Plus MCP Server")
         print("======================")
@@ -43,7 +38,7 @@ def main():
         print("")
         print("Available tools:")
         print("- scatter_plot: Create scatter plots")
-        print("- line_plot: Create line plots")  
+        print("- line_plot: Create line plots")
         print("- bar_chart: Create bar charts")
         print("- matrix_plot: Create matrix/heatmap plots")
         print("- quick_scatter/line/bar: Quick chart creation")
@@ -67,9 +62,10 @@ def main():
         print("To start the server, run: plotext-mcp")
         print("For STDIO transport mode, run: plotext-mcp --stdio")
         return
-    
+
     try:
         from .mcp_server import start_server
+
         start_server(stdio_mode=args.stdio)
     except ImportError as e:
         if "chuk-mcp-server" in str(e):

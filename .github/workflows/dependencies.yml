@@ -1,0 +1,118 @@
+name: Dependencies
+
+on:
+  schedule:
+    # Run dependency updates weekly on Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      
+      - name: Update dependencies
+        run: |
+          uv sync --upgrade
+      
+      - name: Run tests with updated dependencies
+        run: |
+          uv run pytest --cov=src/plotext_plus -v
+      
+      - name: Test MCP functionality
+        run: |
+          uv sync --extra mcp
+          python -c "from plotext_plus.mcp_server import start_server; print('✅ MCP still works')"
+      
+      - name: Check for changes
+        id: verify-changed-files
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create Pull Request
+        if: steps.verify-changed-files.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update dependencies'
+          title: 'chore: Update dependencies'
+          body: |
+            This PR updates project dependencies to their latest versions.
+            
+            ## Changes
+            - Updated uv.lock with latest dependency versions
+            - All tests pass with updated dependencies
+            - MCP functionality verified
+            
+            ## Testing
+            - [x] Unit tests pass
+            - [x] MCP functionality works
+            - [x] All CI checks should pass
+            
+            This PR was automatically created by the dependencies workflow.
+          branch: chore/update-dependencies
+          delete-branch: true
+
+  check-outdated:
+    name: Check Outdated Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      
+      - name: Install dependencies
+        run: |
+          uv sync --group dev
+      
+      - name: Check for outdated packages
+        run: |
+          echo "Checking for outdated packages..."
+          uv tree --outdated || true
+      
+      - name: Generate dependency report
+        run: |
+          echo "# Dependency Report" > dependency-report.md
+          echo "Generated on: $(date)" >> dependency-report.md
+          echo "" >> dependency-report.md
+          echo "## Current Dependencies" >> dependency-report.md
+          echo '```' >> dependency-report.md
+          uv tree >> dependency-report.md
+          echo '```' >> dependency-report.md
+      
+      - name: Upload dependency report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-report
+          path: dependency-report.md
