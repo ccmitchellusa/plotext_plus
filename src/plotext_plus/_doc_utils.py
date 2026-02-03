@@ -211,10 +211,11 @@ class DocumentationClass:  # a list of MethodClass objects
     def _set_output(self, doc="", type=""):
         self._last().set_output(doc, type)
 
-    def _get_method(self, name):
+    def _get_method(self, name, silent=True):
         names = [el.name for el in self._methods]
         if name not in names:
-            print(warning, "no method", name + "() found")
+            if not silent:
+                print(warning, "no method", name + "() found")
         return self._methods[names.index(name)] if name in names else None
 
     def _get_parameters(self, parameter, method):
@@ -242,12 +243,13 @@ class DocumentationClass:  # a list of MethodClass objects
         )
         print(docs)
 
-    def _add_function(self, function):
+    def _add_function(self, function, silent=True):
         name = function.__name__
-        method = self._get_method(name)
+        method = self._get_method(name, silent=silent)
         name += "()"
         if method is None:
-            print(warning, name, "doc not present")
+            if not silent:
+                print(warning, name, "doc not present")
             return
         doc = method.get_doc()
         function.__doc__ = uncolorize(doc)
@@ -255,9 +257,10 @@ class DocumentationClass:  # a list of MethodClass objects
         parameters_actual = get_parameters(function)
         parameters_found = method.get_parameters()
         if parameters_actual != parameters_found:
-            actual = colorize(cm.join(parameters_actual), style="italic")
-            found = colorize(cm.join(parameters_found), style="italic")
-            print(warning, "the parameters of", name, "are", actual, "not", found + ".")
+            if not silent:
+                actual = colorize(cm.join(parameters_actual), style="italic")
+                found = colorize(cm.join(parameters_found), style="italic")
+                print(warning, "the parameters of", name, "are", actual, "not", found + ".")
 
 
 class ParameterTypes:

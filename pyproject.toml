@@ -1,6 +1,6 @@
 [project]
 name = "plotext_plus"
-version = "1.0.10"
+version = "1.0.12"
 description = "Modern terminal plotting library with enhanced visual features, themes, and AI integration"
 authors = [
     {name = "Chris Mitchell", email = "chris@ccmitchellusa.com"}
@@ -8,7 +8,7 @@ authors = [
 license = "MIT"
 requires-python = ">=3.11"
 dependencies = [
-    "chuk-mcp-server>=0.3.5",
+    "chuk-mcp-server>=0.16.5",
     "chuk-term>=0.1.0",
     "shtab>=1.7.2",
 ]
@@ -46,7 +46,7 @@ video = [
 ]
 completion = ["shtab"]
 mcp = [
-    "chuk-mcp-server>=0.3.5",
+    "chuk-mcp-server>=0.16.5",
 ]
 
 [project.scripts]

@@ -1090,8 +1090,8 @@ Execute a complete visualization workflow:
 
 ## Related Documentation
 
-- [Clean API](clean-api.md) - Understanding the public API structure
-- [Themes](themes.md) - Theme system documentation  
-- [Charts](charts.md) - Object-oriented chart classes
-- [Utilities](utilities.md) - Helper functions and utilities
-- [Examples](../examples/) - Usage examples and demos
+- [Clean API](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/api.md) - Understanding the public API structure
+- [Themes](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/themes.md) - Theme system documentation  
+- [Charts](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/chart_classes.md) - Object-oriented chart classes
+- [Utilities](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/utilities.md) - Helper functions and utilities
+- [Examples](https://github.com/ccmitchellusa/plotext_plus/tree/master/examples) - Usage examples and demos

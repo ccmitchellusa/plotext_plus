@@ -11,15 +11,15 @@
 
 ## ✨ Key Features
 
-🎯 **Multiple Plot Types**: [scatter](docs/basic.md#scatter-plot), [line](docs/basic.md#line-plot), [bar](docs/bar.md), [histogram](docs/bar.md#histogram-plot), [candlestick](docs/datetime.md#candlestick-plot), [heatmap](docs/special.md), [confusion matrix](docs/special.md#confusion-matrix), [pie](docs/basic.md#pie-plot), [doughnut](docs/basic.md#doughnut-charts) and more
+🎯 **Multiple Plot Types**: [scatter](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#scatter-plot), [line](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#line-plot), [bar](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/bar.md), [histogram](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/bar.md#histogram-plot), [candlestick](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/datetime.md#candlestick-plot), [heatmap](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/special.md), [confusion matrix](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/special.md#confusion-matrix), [pie](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#pie-plot), [doughnut](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#doughnut-charts) and more
 
-🎨 **Rich Visuals**: [Banner mode](docs/chart_classes.md), [themes](docs/themes.md), [colored text](docs/utilities.md#colored-text), automatic terminal width detection
+🎨 **Rich Visuals**: [Banner mode](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/chart_classes.md), [themes](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/themes.md), [colored text](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/utilities.md#colored-text), automatic terminal width detection
 
-📊 **Advanced Features**: [Subplots](docs/subplots.md), [datetime plots](docs/datetime.md), [image/GIF display](docs/image.md), [video streaming](docs/video.md) (including YouTube)
+📊 **Advanced Features**: [Subplots](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/subplots.md), [datetime plots](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/datetime.md), [image/GIF display](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/image.md), [video streaming](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/video.md) (including YouTube)
 
 🔧 **Modern APIs**: Clean public API, object-oriented charts, quick functions, 100% backward compatible
 
-🤖 **AI Integration**: [MCP server](docs/mcp-server.md) for direct AI client access (Claude, etc.)
+🤖 **AI Integration**: [MCP server](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/mcp-server.md) for direct AI client access (Claude, etc.)
 
 ⚡ **Zero Dependencies**: No required dependencies (optional packages for multimedia and AI integration)
 
@@ -207,40 +207,40 @@ python examples/theme_showcase_demo.py   # Theme comparison
 
 ### 🎯 **Core Plotting**
 
-- **[📊 Basic Plots](docs/basic.md)** - Scatter, line, and fundamental plotting
-- **[📈 Bar Charts](docs/bar.md)** - Bar plots, histograms, and variations  
-- **[📅 DateTime Plots](docs/datetime.md)** - Time series and candlestick charts
-- **[🔬 Special Plots](docs/special.md)** - Heatmaps, confusion matrices, error bars
-- **[🎨 Decorator Plots](docs/decorator.md)** - Text, lines, and shape overlays
+- **[📊 Basic Plots](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md)** - Scatter, line, and fundamental plotting
+- **[📈 Bar Charts](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/bar.md)** - Bar plots, histograms, and variations  
+- **[📅 DateTime Plots](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/datetime.md)** - Time series and candlestick charts
+- **[🔬 Special Plots](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/special.md)** - Heatmaps, confusion matrices, error bars
+- **[🎨 Decorator Plots](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/decorator.md)** - Text, lines, and shape overlays
 
 ### 🖼️ **Multimedia & Advanced**
 
-- **[🖼️ Image Plotting](docs/image.md)** - Display images and GIFs in terminal
-- **[🎬 Video Streaming](docs/video.md)** - Play videos and YouTube content
-- **[📐 Subplots](docs/subplots.md)** - Multiple plots and complex layouts
+- **[🖼️ Image Plotting](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/image.md)** - Display images and GIFs in terminal
+- **[🎬 Video Streaming](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/video.md)** - Play videos and YouTube content
+- **[📐 Subplots](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/subplots.md)** - Multiple plots and complex layouts
 
 ### ⚙️ **Configuration & Styling**
 
-- **[🎨 Themes](docs/themes.md)** - Built-in themes and customization
-- **[⚙️ Settings](docs/settings.md)** - Plot configuration and options
-- **[📏 Aspect](docs/aspect.md)** - Size, scaling, and layout control
-- **[🔧 Chart Classes](docs/chart_classes.md)** - Object-oriented API reference
+- **[🎨 Themes](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/themes.md)** - Built-in themes and customization
+- **[⚙️ Settings](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/settings.md)** - Plot configuration and options
+- **[📏 Aspect](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/aspect.md)** - Size, scaling, and layout control
+- **[🔧 Chart Classes](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/chart_classes.md)** - Object-oriented API reference
 
 ### 🛠️ **Tools & Integration**  
 
-- **[🔧 Utilities](docs/utilities.md)** - Helper functions and command-line tools
-- **[🤖 MCP Server](docs/mcp-server.md)** - AI integration via Model Context Protocol
-- **[🌐 Environments](docs/environments.md)** - IDE and platform compatibility
-- **[🏗️ API Structure](docs/api.md)** - Clean public API organization
-- **[📝 Notes](docs/notes.md)** - Installation, tips, and troubleshooting
+- **[🔧 Utilities](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/utilities.md)** - Helper functions and command-line tools
+- **[🤖 MCP Server](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/mcp-server.md)** - AI integration via Model Context Protocol
+- **[🌐 Environments](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/environments.md)** - IDE and platform compatibility
+- **[🏗️ API Structure](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/api.md)** - Clean public API organization
+- **[📝 Notes](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/notes.md)** - Installation, tips, and troubleshooting
 
 ### 🚀 **Getting Started Guides**
 
-1. **[👋 Introduction](docs/basic.md#introduction)** - First steps with Plotext
-2. **[📦 Installation](docs/notes.md#install)** - Setup and dependencies  
+1. **[👋 Introduction](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/basic.md#introduction)** - First steps with Plotext
+2. **[📦 Installation](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/notes.md#install)** - Setup and dependencies  
 3. **[🎯 Quick Examples](#-quick-start)** - Jump right in with code samples
-4. **[🎨 Theming Guide](docs/themes.md)** - Make your plots beautiful
-5. **[🔧 Modern API Guide](docs/api.md)** - Use the clean public interface
+4. **[🎨 Theming Guide](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/themes.md)** - Make your plots beautiful
+5. **[🔧 Modern API Guide](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/api.md)** - Use the clean public interface
 
 ## 💡 Migration & Compatibility
 
@@ -263,4 +263,4 @@ plt.show()
 
 ## 🛠️ Development & Build System
 
-Plotext+ includes a comprehensive build system with modern tooling. See **[Build Documentation](docs/build.md)** for complete setup, testing, publishing, and deployment instructions.
+Plotext+ includes a comprehensive build system with modern tooling. See **[Build Documentation](https://github.com/ccmitchellusa/plotext_plus/blob/master/docs/build.md)** for complete setup, testing, publishing, and deployment instructions.
