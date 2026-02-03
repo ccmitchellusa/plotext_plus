@@ -208,10 +208,10 @@ class PlotextPlusMCPServer(ChukMCPServer):
         """Get queued log notifications (for testing/debugging)."""
         return self.mcp_logging_handler.notification_queue.copy()
 
-    def run_stdio(self, debug: bool | None = None) -> Any:
+    def run_stdio(self, debug: bool | None = None, log_level: str = 'warning') -> Any:
         """Override run_stdio to start the server with logging support."""
         # logging/setLevel is now natively supported in chuk-mcp-server
-        result = super().run_stdio(debug)
+        result = super().run_stdio(debug, log_level=log_level)
         return result
 
     def run(self, host: str | None = None, port: int | None = None, debug: bool | None = None) -> Any:
