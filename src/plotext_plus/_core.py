@@ -999,6 +999,8 @@ add(polygon)
 add(confusion_matrix)
 add(indicator)
 
+add(pie)
+add(heatmap)
 add(matrix_plot)
 add(image_plot)
 
